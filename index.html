@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Check-In</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            background: #ffffff;
+            padding: 40px 36px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            max-width: 420px;
+            width: 100%;
+            border: 1px solid #e9edf4;
+            text-align: center;
+        }
+
+        .card h1 {
+            font-size: 26px;
+            font-weight: 600;
+            color: #0f172a;
+            letter-spacing: -0.4px;
+            margin-bottom: 4px;
+        }
+
+        .card .subtitle {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 28px;
+        }
+
+        /* ===== INPUT ===== */
+        .input-group {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            outline: none;
+            background: #fafcff;
+            transition: 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: #2563eb;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+        }
+
+        /* ===== BUTTON ===== */
+        .btn-checkin {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            background: #1e293b;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-checkin:hover {
+            background: #0f172a;
+        }
+
+        .btn-checkin:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ===== STATUS ===== */
+        .status {
+            margin-top: 20px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 450;
+            display: none;
+            background: #f8fafc;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        .status.success {
+            display: block;
+            background: #f0fdf4;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .status.error {
+            display: block;
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .status.loading {
+            display: block;
+            background: #fffbeb;
+            color: #854d0e;
+            border-color: #fde68a;
+        }
+
+        /* ===== CURRENT SUBJECT BADGE ===== */
+        .subject-badge {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 6px 14px;
+            background: #eef2ff;
+            color: #3730a3;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid #c7d2fe;
+        }
+
+        .subject-badge.none {
+            background: #f1f5f9;
+            color: #64748b;
+            border-color: #e2e8f0;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid #e9edf4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: #94a3b8;
+            letter-spacing: 0.2px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .footer-links a {
+            font-size: 12px;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .footer-links a:hover {
+            color: #1e293b;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .card {
+                padding: 28px 20px;
+            }
+
+            .card h1 {
+                font-size: 22px;
+            }
+
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Check In</h1>
+        <p class="subtitle">Enter your student ID to verify your location</p>
+
+        <div id="subjectBadge" class="subject-badge none">Checking current class...</div>
+
+        <div class="input-group">
+            <label for="studentID">Student ID</label>
+            <input type="text" id="studentID" placeholder="e.g. 2023-1001" autocomplete="off" />
+        </div>
+
+        <button class="btn-checkin" id="checkinBtn">Verify Location</button>
+
+        <div class="status" id="statusMessage"></div>
+
+        <div class="footer">
+            <span class="footer-text">Where U &bull; 2026</span>
+            <div class="footer-links">
+                <a href="help.html">Help</a>
+                <a href="privacy.html">Privacy</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FIREBASE ===== -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="geofence.js"></script>
+
+    <script>
+        // ============================================================
+        //  ELEMENTS
+        // ============================================================
+
+        const studentIDInput = document.getElementById('studentID');
+        const checkinBtn = document.getElementById('checkinBtn');
+        const statusDiv = document.getElementById('statusMessage');
+        const subjectBadge = document.getElementById('subjectBadge');
+
+        // ============================================================
+        //  STATUS HELPER
+        // ============================================================
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+        }
+
+        // ============================================================
+        //  GET ACTIVE SUBJECT
+        //  Determines which subject is currently in session.
+        // ============================================================
+
+        function getActiveSubject(subjects) {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+
+            for (const subjectID in subjects) {
+                const subject = subjects[subjectID];
+                if (!subject.start || !subject.end) continue;
+
+                const [startH, startM] = subject.start.split(':').map(Number);
+                const [endH, endM] = subject.end.split(':').map(Number);
+
+                const startTime = startH * 60 + startM;
+                const endTime = endH * 60 + endM;
+
+                if (currentTime >= startTime && currentTime <= endTime) {
+                    return { id: subjectID, name: subject.name };
+                }
+            }
+
+            return null;
+        }
+
+        // ============================================================
+        //  LOAD CURRENT SUBJECT BADGE
+        // ============================================================
+
+        function refreshSubjectBadge() {
+            database.ref('subjects').once('value').then((snapshot) => {
+                const subjects = snapshot.val() || {};
+                const active = getActiveSubject(subjects);
+
+                if (active) {
+                    subjectBadge.textContent = 'Current class: ' + active.name;
+                    subjectBadge.className = 'subject-badge';
+                } else {
+                    subjectBadge.textContent = 'No class in session';
+                    subjectBadge.className = 'subject-badge none';
+                }
+            }).catch(() => {
+                subjectBadge.textContent = 'Unable to load schedule';
+                subjectBadge.className = 'subject-badge none';
+            });
+        }
+
+        // ============================================================
+        //  MAIN CHECK-IN LOGIC
+        // ============================================================
+
+        function checkIn() {
+            const studentID = studentIDInput.value.trim();
+
+            if (!studentID) {
+                showStatus('Please enter your student ID.', 'error');
+                return;
+            }
+
+            if (!navigator.geolocation) {
+                showStatus('GPS is not available on this device.', 'error');
+                return;
+            }
+
+            checkinBtn.disabled = true;
+            checkinBtn.textContent = 'Verifying...';
+            showStatus('Checking student ID...', 'loading');
+
+            // Step 1: Check student + load subjects
+            Promise.all([
+                database.ref('students/' + studentID).once('value'),
+                database.ref('subjects').once('value')
+            ]).then(([studentSnap, subjectsSnap]) => {
+                if (!studentSnap.exists()) {
+                    showStatus('❌ Student ID not found.', 'error');
+                    checkinBtn.disabled = false;
+                    checkinBtn.textContent = 'Verify Location';
+                    return;
+                }
+
+                const studentData = studentSnap.val();
+                const studentName = studentData.name || 'Unknown';
+                const subjects = subjectsSnap.val() || {};
+
+                // Step 2: Determine the active subject
+                const activeSubject = getActiveSubject(subjects);
+
+                if (!activeSubject) {
+                    showStatus('❌ No class is currently in session.', 'error');
+                    checkinBtn.disabled = false;
+                    checkinBtn.textContent = 'Verify Location';
+                    return;
+                }
+
+                // Step 3: Get GPS and check geofence
+                showStatus('Getting your location...', 'loading');
+
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const inside = isInsideGeofence(lat, lng);
+                        const status = inside ? 'Present' : 'Rejected - Outside Campus';
+
+                        // Step 4: Save attendance under the active subject
+                        database.ref('attendance/' + activeSubject.id + '/' + studentID).set({
+                            studentID: studentID,
+                            name: studentName,
+                            subject: activeSubject.name,
+                            latitude: lat,
+                            longitude: lng,
+                            status: status,
+                            timestamp: new Date().toISOString()
+                        }).then(function() {
+                            if (inside) {
+                                showStatus('✅ ' + studentName + ', you are marked Present for ' + activeSubject.name + '.', 'success');
+                                checkinBtn.textContent = '✓ Verified';
+                            } else {
+                                showStatus('❌ You are outside the campus. Attendance rejected.', 'error');
+                                checkinBtn.textContent = 'Try Again';
+                            }
+                        }).catch(function(error) {
+                            showStatus('Error: ' + error.message, 'error');
+                            checkinBtn.textContent = 'Verify Location';
+                        }).finally(function() {
+                            checkinBtn.disabled = false;
+                        });
+                    },
+                    function(error) {
+                        let msg = 'GPS error: ';
+                        if (error.code === 1) msg += 'Permission denied. Allow GPS in your browser.';
+                        else if (error.code === 2) msg += 'Signal unavailable. Try going outside.';
+                        else if (error.code === 3) msg += 'Request timed out. Try again.';
+                        else msg += error.message;
+                        showStatus(msg, 'error');
+                        checkinBtn.disabled = false;
+                        checkinBtn.textContent = 'Verify Location';
+                    },
+                    { enableHighAccuracy: true, timeout: 15000 }
+                );
+            }).catch(function(error) {
+                showStatus('Database error: ' + error.message, 'error');
+                checkinBtn.disabled = false;
+                checkinBtn.textContent = 'Verify Location';
+            });
+        }
+
+        // ============================================================
+        //  EVENT LISTENERS
+        // ============================================================
+
+        checkinBtn.addEventListener('click', checkIn);
+
+        studentIDInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                checkIn();
+            }
+        });
+
+        window.addEventListener('load', function() {
+            studentIDInput.focus();
+            refreshSubjectBadge();
+        });
+
+        // Refresh badge every 30 seconds
+        setInterval(refreshSubjectBadge, 30000);
+    </script>
+
+</body>
+</html>

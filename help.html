@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Help - Attendance System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            max-width: 720px;
+            width: 100%;
+            padding: 44px 40px;
+            border-radius: 16px;
+            border: 1px solid #e9edf4;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 600;
+            color: #0f172a;
+            letter-spacing: -0.4px;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 32px;
+        }
+
+        .step {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            padding: 16px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .step:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            background: #1e293b;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .faq {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e9edf4;
+        }
+
+        .faq h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+
+        .faq-item {
+            margin-bottom: 16px;
+        }
+
+        .faq-item strong {
+            display: block;
+            font-size: 14px;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .faq-item p {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 32px;
+            padding-top: 18px;
+            border-top: 1px solid #e9edf4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .footer-links a {
+            font-size: 12px;
+            color: #94a3b8;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: #1e293b;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 28px 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>How to Check In</h1>
+        <p class="subtitle">Follow these steps to verify your attendance</p>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Enter your Student ID</h3>
+                <p>Type your official student ID number in the field on the Check In page.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>Verify your location</h3>
+                <p>Tap "Verify Location" and allow GPS access when your browser asks. Your phone will send your coordinates to the system.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>Wait for confirmation</h3>
+                <p>If you are inside the campus, you will be marked Present. If you are outside, your attendance will be rejected.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h3>Stay on campus</h3>
+                <p>Your location is checked again during the class period. If you leave the campus, your attendance may be cancelled.</p>
+            </div>
+        </div>
+
+        <div class="faq">
+            <h2>Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <strong>What if my GPS is off?</strong>
+                <p>You will not be able to check in. Please enable GPS in your phone settings and allow location access in your browser.</p>
+            </div>
+
+            <div class="faq-item">
+                <strong>What if I'm outside the campus?</strong>
+                <p>Your attendance will be rejected. You must be physically inside the campus to check in.</p>
+            </div>
+
+            <div class="faq-item">
+                <strong>Can I check in for a friend?</strong>
+                <p>No. The system links each check-in to a specific student ID. Sharing IDs is a violation of the attendance policy.</p>
+            </div>
+
+            <div class="faq-item">
+                <strong>What if I leave campus after checking in?</strong>
+                <p>Your location is checked again during the class period. If you leave, your attendance may be flagged or cancelled.</p>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-link">← Back to Check In</a>
+
+        <div class="footer">
+            <span class="footer-text">Where U &bull; 2026</span>
+            <div class="footer-links">
+                <a href="index.html">Check In</a>
+                <a href="privacy.html">Privacy</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

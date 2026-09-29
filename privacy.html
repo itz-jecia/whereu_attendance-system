@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy - Attendance System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            max-width: 720px;
+            width: 100%;
+            padding: 44px 40px;
+            border-radius: 16px;
+            border: 1px solid #e9edf4;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 600;
+            color: #0f172a;
+            letter-spacing: -0.4px;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 32px;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section h2 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .section p {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 16px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 32px;
+            padding-top: 18px;
+            border-top: 1px solid #e9edf4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .footer-links a {
+            font-size: 12px;
+            color: #94a3b8;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: #1e293b;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 28px 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Privacy Policy</h1>
+        <p class="subtitle">How your data is collected, used, and protected</p>
+
+        <div class="section">
+            <h2>1. Information We Collect</h2>
+            <p>We collect your Student ID and your GPS location at the moment of check-in. No other personal information is collected.</p>
+        </div>
+
+        <div class="section">
+            <h2>2. How We Use Your Data</h2>
+            <p>Your GPS location is used only to verify that you are physically inside the campus during the attendance period. Your Student ID is used to identify you in the attendance record.</p>
+        </div>
+
+        <div class="section">
+            <h2>3. Data Storage</h2>
+            <p>All data is stored securely in Firebase Realtime Database, which uses encryption in transit. Only authorized teachers and administrators have access to view attendance records.</p>
+        </div>
+
+        <div class="section">
+            <h2>4. Data Retention</h2>
+            <p>Attendance records are retained for the duration of the academic term and are archived afterward. Location data is not stored longer than necessary for verification.</p>
+        </div>
+
+        <div class="section">
+            <h2>5. Data Sharing</h2>
+            <p>We do not sell, trade, or share your personal information with third parties. Data is used solely for academic attendance purposes.</p>
+        </div>
+
+        <div class="section">
+            <h2>6. Your Rights</h2>
+            <p>You may request access to your attendance records or ask for corrections by contacting your teacher or the system administrator.</p>
+        </div>
+
+        <a href="index.html" class="back-link">← Back to Check In</a>
+
+        <div class="footer">
+            <span class="footer-text">Where U &bull; 2026</span>
+            <div class="footer-links">
+                <a href="index.html">Check In</a>
+                <a href="help.html">Help</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
