@@ -4,7 +4,7 @@
 
 ---
 
-## 📖 Overview
+## Overview
 
 **Where U** is a web-based attendance verification system that uses **GPS geofencing** to confirm that students are physically present on campus before marking them present. It replaces traditional roll calls and RFID-only systems with a location-aware, subject-scheduled, real-time monitoring solution.
 
@@ -12,7 +12,7 @@ The system was built as a research project to explore the feasibility of **locat
 
 ---
 
-## 🎯 Research Objectives
+## Research Objectives
 
 This project aims to:
 
@@ -24,7 +24,7 @@ This project aims to:
 
 ---
 
-## 🔬 Research Context
+## Research Context
 
 Traditional attendance systems suffer from two major issues:
 
@@ -37,7 +37,7 @@ The system builds on concepts from prior work in geofenced attendance systems (e
 
 ---
 
-## 🔄 How It Works
+## How It Works
 
 1. Student opens the web app on their phone
 2. Enters their Student ID
@@ -50,7 +50,7 @@ The system builds on concepts from prior work in geofenced attendance systems (e
 
 ---
 
-## 📁 Files
+## Files
 
 | File | Purpose |
 | :--- | :--- |
@@ -63,7 +63,7 @@ The system builds on concepts from prior work in geofenced attendance systems (e
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Tool | Purpose |
 | :--- | :--- |
