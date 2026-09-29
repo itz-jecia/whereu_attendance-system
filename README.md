@@ -73,3 +73,23 @@ The system builds on concepts from prior work in geofenced attendance systems (e
 | **Google Maps** | Campus GPS coordinates |
 | **Point-in-Polygon Algorithm** | Geofence verification |
 
+## Database Structure
+attendance/
+├── students/
+│ └── [studentID]/
+│ ├── name
+│ └── course
+│
+├── subjects/
+│ └── [subjectID]/
+│ ├── name
+│ ├── start
+│ └── end
+│
+└── attendance/
+└── [subjectID]/
+└── [studentID]/
+├── status
+├── latitude
+├── longitude
+└── timestamp
