@@ -226,21 +226,34 @@
         </div>
     </div>
 
+    <!-- ===== FIREBASE ===== -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="geofence.js"></script>
 
     <script>
+        // ============================================================
+        //  ELEMENTS
+        // ============================================================
+
         const studentIDInput = document.getElementById('studentID');
         const checkinBtn = document.getElementById('checkinBtn');
         const statusDiv = document.getElementById('statusMessage');
         const subjectBadge = document.getElementById('subjectBadge');
 
+        // ============================================================
+        //  STATUS HELPER
+        // ============================================================
+
         function showStatus(message, type) {
             statusDiv.textContent = message;
             statusDiv.className = 'status ' + type;
         }
+
+        // ============================================================
+        //  GET ACTIVE SUBJECT
+        // ============================================================
 
         function getActiveSubject(subjects) {
             const now = new Date();
@@ -264,6 +277,10 @@
             return null;
         }
 
+        // ============================================================
+        //  LOAD SUBJECT BADGE
+        // ============================================================
+
         function refreshSubjectBadge() {
             database.ref('subjects').once('value').then((snapshot) => {
                 const subjects = snapshot.val() || {};
@@ -281,6 +298,10 @@
                 subjectBadge.className = 'subject-badge none';
             });
         }
+
+        // ============================================================
+        //  HANDLE LOCATION
+        // ============================================================
 
         function handleLocation(position) {
             const lat = position.coords.latitude;
@@ -343,6 +364,10 @@
             });
         }
 
+        // ============================================================
+        //  CHECK IN
+        // ============================================================
+
         function checkIn() {
             const studentID = studentIDInput.value.trim();
 
@@ -360,13 +385,13 @@
             checkinBtn.textContent = 'Verifying...';
             showStatus('📍 Getting your location...', 'loading');
 
-            // Step 1: Try fast cached location first
+            // Step 1: Fast cached location
             navigator.geolocation.getCurrentPosition(
                 function(position) {
                     handleLocation(position);
                 },
                 function() {
-                    // Step 2: If fast fails, try high accuracy
+                    // Step 2: Fallback to precise GPS
                     showStatus('📍 Getting precise location...', 'loading');
 
                     navigator.geolocation.getCurrentPosition(
@@ -389,6 +414,10 @@
                 { enableHighAccuracy: false, timeout: 5000, maximumAge: Infinity }
             );
         }
+
+        // ============================================================
+        //  EVENT LISTENERS
+        // ============================================================
 
         checkinBtn.addEventListener('click', checkIn);
 
