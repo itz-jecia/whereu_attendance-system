@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Student Check-In</title>
     <style>
-        /* ===== RESET & BASE ===== */
         * {
             margin: 0;
             padding: 0;
@@ -22,7 +21,6 @@
             padding: 20px;
         }
 
-        /* ===== CARD ===== */
         .card {
             background: #ffffff;
             padding: 40px 36px;
@@ -48,7 +46,6 @@
             margin-bottom: 28px;
         }
 
-        /* ===== INPUT ===== */
         .input-group {
             text-align: center;
             margin-bottom: 20px;
@@ -79,7 +76,6 @@
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
         }
 
-        /* ===== BUTTON ===== */
         .btn-checkin {
             width: 100%;
             padding: 14px;
@@ -102,7 +98,6 @@
             cursor: not-allowed;
         }
 
-        /* ===== STATUS ===== */
         .status {
             margin-top: 20px;
             padding: 12px 14px;
@@ -137,7 +132,6 @@
             border-color: #fde68a;
         }
 
-        /* ===== CURRENT SUBJECT BADGE ===== */
         .subject-badge {
             display: inline-block;
             margin-bottom: 20px;
@@ -156,7 +150,6 @@
             border-color: #e2e8f0;
         }
 
-        /* ===== FOOTER ===== */
         .footer {
             margin-top: 28px;
             padding-top: 18px;
@@ -190,7 +183,6 @@
             color: #1e293b;
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 480px) {
             .card {
                 padding: 28px 20px;
@@ -234,35 +226,21 @@
         </div>
     </div>
 
-    <!-- ===== FIREBASE ===== -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="geofence.js"></script>
 
     <script>
-        // ============================================================
-        //  ELEMENTS
-        // ============================================================
-
         const studentIDInput = document.getElementById('studentID');
         const checkinBtn = document.getElementById('checkinBtn');
         const statusDiv = document.getElementById('statusMessage');
         const subjectBadge = document.getElementById('subjectBadge');
 
-        // ============================================================
-        //  STATUS HELPER
-        // ============================================================
-
         function showStatus(message, type) {
             statusDiv.textContent = message;
             statusDiv.className = 'status ' + type;
         }
-
-        // ============================================================
-        //  GET ACTIVE SUBJECT
-        //  Determines which subject is currently in session.
-        // ============================================================
 
         function getActiveSubject(subjects) {
             const now = new Date();
@@ -286,10 +264,6 @@
             return null;
         }
 
-        // ============================================================
-        //  LOAD CURRENT SUBJECT BADGE
-        // ============================================================
-
         function refreshSubjectBadge() {
             database.ref('subjects').once('value').then((snapshot) => {
                 const subjects = snapshot.val() || {};
@@ -308,9 +282,66 @@
             });
         }
 
-        // ============================================================
-        //  MAIN CHECK-IN LOGIC
-        // ============================================================
+        function handleLocation(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const studentID = studentIDInput.value.trim();
+
+            Promise.all([
+                database.ref('students/' + studentID).once('value'),
+                database.ref('subjects').once('value')
+            ]).then(([studentSnap, subjectsSnap]) => {
+                if (!studentSnap.exists()) {
+                    showStatus('❌ Student ID not found.', 'error');
+                    checkinBtn.disabled = false;
+                    checkinBtn.textContent = 'Verify Location';
+                    return;
+                }
+
+                const studentData = studentSnap.val();
+                const studentName = studentData.name || 'Unknown';
+                const subjects = subjectsSnap.val() || {};
+                const activeSubject = getActiveSubject(subjects);
+
+                if (!activeSubject) {
+                    showStatus('❌ No class is currently in session.', 'error');
+                    checkinBtn.disabled = false;
+                    checkinBtn.textContent = 'Verify Location';
+                    return;
+                }
+
+                const inside = isInsideGeofence(lat, lng);
+                const status = inside ? 'Present' : 'Rejected - Outside Campus';
+
+                database.ref('attendance/' + activeSubject.id + '/' + studentID).set({
+                    studentID: studentID,
+                    name: studentName,
+                    subject: activeSubject.name,
+                    latitude: lat,
+                    longitude: lng,
+                    status: status,
+                    timestamp: new Date().toISOString()
+                }).then(function() {
+                    if (inside) {
+                        showStatus('✅ ' + studentName + ', you are marked Present for ' + activeSubject.name + '.', 'success');
+                        checkinBtn.textContent = '✓ Verified';
+                    } else {
+                        showStatus('❌ You are outside the campus. Attendance rejected.', 'error');
+                        checkinBtn.textContent = 'Try Again';
+                    }
+                }).catch(function(error) {
+                    showStatus('Error: ' + error.message, 'error');
+                    checkinBtn.textContent = 'Verify Location';
+                }).finally(function() {
+                    checkinBtn.disabled = false;
+                });
+
+            }).catch(function(error) {
+                showStatus('Database error: ' + error.message, 'error');
+                checkinBtn.disabled = false;
+                checkinBtn.textContent = 'Verify Location';
+            });
+        }
 
         function checkIn() {
             const studentID = studentIDInput.value.trim();
@@ -327,90 +358,37 @@
 
             checkinBtn.disabled = true;
             checkinBtn.textContent = 'Verifying...';
-            showStatus('Checking student ID...', 'loading');
+            showStatus('📍 Getting your location...', 'loading');
 
-            // Step 1: Check student + load subjects
-            Promise.all([
-                database.ref('students/' + studentID).once('value'),
-                database.ref('subjects').once('value')
-            ]).then(([studentSnap, subjectsSnap]) => {
-                if (!studentSnap.exists()) {
-                    showStatus('❌ Student ID not found.', 'error');
-                    checkinBtn.disabled = false;
-                    checkinBtn.textContent = 'Verify Location';
-                    return;
-                }
+            // Step 1: Try fast cached location first
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    handleLocation(position);
+                },
+                function() {
+                    // Step 2: If fast fails, try high accuracy
+                    showStatus('📍 Getting precise location...', 'loading');
 
-                const studentData = studentSnap.val();
-                const studentName = studentData.name || 'Unknown';
-                const subjects = subjectsSnap.val() || {};
-
-                // Step 2: Determine the active subject
-                const activeSubject = getActiveSubject(subjects);
-
-                if (!activeSubject) {
-                    showStatus('❌ No class is currently in session.', 'error');
-                    checkinBtn.disabled = false;
-                    checkinBtn.textContent = 'Verify Location';
-                    return;
-                }
-
-                // Step 3: Get GPS and check geofence
-                showStatus('Getting your location...', 'loading');
-
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        const inside = isInsideGeofence(lat, lng);
-                        const status = inside ? 'Present' : 'Rejected - Outside Campus';
-
-                        // Step 4: Save attendance under the active subject
-                        database.ref('attendance/' + activeSubject.id + '/' + studentID).set({
-                            studentID: studentID,
-                            name: studentName,
-                            subject: activeSubject.name,
-                            latitude: lat,
-                            longitude: lng,
-                            status: status,
-                            timestamp: new Date().toISOString()
-                        }).then(function() {
-                            if (inside) {
-                                showStatus('✅ ' + studentName + ', you are marked Present for ' + activeSubject.name + '.', 'success');
-                                checkinBtn.textContent = '✓ Verified';
-                            } else {
-                                showStatus('❌ You are outside the campus. Attendance rejected.', 'error');
-                                checkinBtn.textContent = 'Try Again';
-                            }
-                        }).catch(function(error) {
-                            showStatus('Error: ' + error.message, 'error');
-                            checkinBtn.textContent = 'Verify Location';
-                        }).finally(function() {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            handleLocation(position);
+                        },
+                        function(error) {
+                            let msg = 'GPS failed: ';
+                            if (error.code === 1) msg += 'Permission denied. Allow GPS in your browser.';
+                            else if (error.code === 2) msg += 'Signal unavailable. Go outside and try again.';
+                            else if (error.code === 3) msg += 'Request timed out. Try again.';
+                            else msg += error.message;
+                            showStatus(msg, 'error');
                             checkinBtn.disabled = false;
-                        });
-                    },
-                    function(error) {
-                        let msg = 'GPS error: ';
-                        if (error.code === 1) msg += 'Permission denied. Allow GPS in your browser.';
-                        else if (error.code === 2) msg += 'Signal unavailable. Try going outside.';
-                        else if (error.code === 3) msg += 'Request timed out. Try again.';
-                        else msg += error.message;
-                        showStatus(msg, 'error');
-                        checkinBtn.disabled = false;
-                        checkinBtn.textContent = 'Verify Location';
-                    },
-                    { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 }
-                );
-            }).catch(function(error) {
-                showStatus('Database error: ' + error.message, 'error');
-                checkinBtn.disabled = false;
-                checkinBtn.textContent = 'Verify Location';
-            });
+                            checkinBtn.textContent = 'Verify Location';
+                        },
+                        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+                    );
+                },
+                { enableHighAccuracy: false, timeout: 5000, maximumAge: Infinity }
+            );
         }
-
-        // ============================================================
-        //  EVENT LISTENERS
-        // ============================================================
 
         checkinBtn.addEventListener('click', checkIn);
 
@@ -426,7 +404,6 @@
             refreshSubjectBadge();
         });
 
-        // Refresh badge every 30 seconds
         setInterval(refreshSubjectBadge, 30000);
     </script>
 
