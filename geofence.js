@@ -1,34 +1,28 @@
 // ============================================================
 //  GEOFENCE: Point-in-Polygon (Ray Casting Algorithm)
-//  This file checks if a GPS coordinate is inside the campus.
 // ============================================================
 
 // ============================================================
 //  CAMPUS POLYGON
-//  Replace these coordinates with YOUR actual campus GPS points.
-//  Go around the campus in order (clockwise or counter-clockwise).
 // ============================================================
 
 const campusPolygon = [
-    { lat: 7.7050341, lng: 125.9949556 },  // Point 1 - NW (Northwest)
-    { lat: 7.704967, lng: 125.995796 },  // Point 2 - N (North)
-    { lat: 7.7049305, lng: 125.9962381 },  // Point 3 - NE (Northeast)
-    { lat: 7.7043135, lng: 125.9963115 },  // Point 4 - E (East)
-    { lat: 17.7037556, lng: 125.9964553 },  // Point 5 - SE (Southeast)
-    { lat: 7.703857, lng: 125.995838 },  // Point 6 - S (South)
-    { lat: 7.7040105, lng: 125.9949007 },  // Point 7 - SW (Southwest)
-    { lat: 7.7044178, lng: 125.9949241 }   // Point 8 - W (West)
+    { lat: 7.7050341, lng: 125.9949556 },  // Point 1 - NW
+    { lat: 7.704967, lng: 125.995796 },    // Point 2 - N
+    { lat: 7.7049305, lng: 125.9962381 },  // Point 3 - NE
+    { lat: 7.7043135, lng: 125.9963115 },  // Point 4 - E
+    { lat: 7.7037556, lng: 125.9964553 },  // Point 5 - SE  ← FIXED
+    { lat: 7.703857, lng: 125.995838 },    // Point 6 - S
+    { lat: 7.7040105, lng: 125.9949007 },  // Point 7 - SW
+    { lat: 7.7044178, lng: 125.9949241 }   // Point 8 - W
 ];
 
 // ============================================================
-//  POINT-IN-POLYGON ALGORITHM (Ray Casting)
-//  Returns true if the point (lat, lng) is inside the polygon.
-//  Returns false if outside.
+//  POINT-IN-POLYGON ALGORITHM
 // ============================================================
 
 function isInsideGeofence(lat, lng) {
     let inside = false;
-
     for (let i = 0, j = campusPolygon.length - 1; i < campusPolygon.length; j = i++) {
         const xi = campusPolygon[i].lat;
         const yi = campusPolygon[i].lng;
@@ -40,18 +34,15 @@ function isInsideGeofence(lat, lng) {
 
         if (intersect) inside = !inside;
     }
-
     return inside;
 }
 
 // ============================================================
 //  HAVERSINE DISTANCE
-//  Returns the distance in meters between two GPS points.
-//  Useful for showing how far a student is from campus.
 // ============================================================
 
 function haversineDistance(lat1, lng1, lat2, lng2) {
-    const R = 6371000; // Earth radius in meters
+    const R = 6371000;
     const toRad = (deg) => deg * Math.PI / 180;
 
     const dLat = toRad(lat2 - lat1);
@@ -66,31 +57,26 @@ function haversineDistance(lat1, lng1, lat2, lng2) {
 }
 
 // ============================================================
-//  GET CAMPUS CENTER (for map display)
-//  Returns the average lat/lng of all polygon points.
+//  GET CAMPUS CENTER
 // ============================================================
 
 function getCampusCenter() {
     let latSum = 0, lngSum = 0;
-
     campusPolygon.forEach(point => {
         latSum += point.lat;
         lngSum += point.lng;
     });
-
     return {
         lat: latSum / campusPolygon.length,
         lng: lngSum / campusPolygon.length
     };
+}  // ← CLOSING BRACE FIXED
 
 // ============================================================
 //  GET ACTIVE SUBJECT
-//  Returns the subject ID and name based on current time.
 // ============================================================
 
 function getActiveSubject(subjects, currentTime) {
-    // currentTime is in minutes since midnight (e.g. 8:30 AM = 510)
-
     for (const subjectID in subjects) {
         const subject = subjects[subjectID];
         const [startH, startM] = subject.start.split(':').map(Number);
@@ -103,6 +89,5 @@ function getActiveSubject(subjects, currentTime) {
             return { id: subjectID, name: subject.name };
         }
     }
-
-    return null; // No active subject
+    return null;
 }
