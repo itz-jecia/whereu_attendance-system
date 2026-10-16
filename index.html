@@ -291,7 +291,7 @@
             });
         }
 
-      function handleLocation(position) {
+   function handleLocation(position) {
     const lat = position.coords.latitude;
     const lng = position.coords.longitude;
     const studentID = studentIDInput.value.trim();
@@ -321,7 +321,6 @@
 
         const now = new Date();
         const today = now.toISOString().split('T')[0];
-        const inside = isInsideGeofence(lat, lng);
         const deviceID = getDeviceID();
 
         Promise.all([
@@ -352,6 +351,7 @@
                 database.ref('device_links/' + deviceID).set(studentID);
             }
 
+            // ===== SPOOFING CHECK FIRST =====
             database.ref('attendance/' + activeSubject.id + '/' + studentID).once('value').then((prevSnap) => {
                 const previousRecord = prevSnap.val();
                 const spoofCheck = checkGPSSpoofing(lat, lng, position.coords.accuracy, previousRecord);
@@ -376,6 +376,8 @@
                     return;
                 }
 
+                // ===== GEOFENCE CHECK AFTER =====
+                const inside = isInsideGeofence(lat, lng);
                 const status = inside ? 'Present' : 'Rejected - Outside Campus';
 
                 database.ref('attendance/' + activeSubject.id + '/' + studentID).set({
