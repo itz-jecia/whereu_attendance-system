@@ -330,6 +330,10 @@
             database.ref('student_devices/' + studentID).set(deviceID);
         }
     proceedWithCheckIn();
+            function proceedWithCheckIn() {
+    const lat = lastPosition.coords.latitude;
+    const lng = lastPosition.coords.longitude;
+}
 });
 
         // Check for GPS spoofing using previous record
