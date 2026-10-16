@@ -32,16 +32,6 @@ function isInsideGeofence(lat, lng) {
     }
     return inside;
 }
-
-// ===== SELF-TEST (runs once when file loads) =====
-console.log("=== GEOFENCE SELF-TEST ===");
-console.log("campusPolygon has", campusPolygon.length, "points");
-console.log("Center (7.7045, 125.9955):", isInsideGeofence(7.7045, 125.9955));
-console.log("NW corner (7.7050341, 125.9949556):", isInsideGeofence(7.7050341, 125.9949556));
-console.log("SE corner (7.7037556, 125.9964553):", isInsideGeofence(7.7037556, 125.9964553));
-console.log("Far away (7.7000, 125.9900):", isInsideGeofence(7.7000, 125.9900));
-console.log("=== END TEST ===");
-
 // ============================================================
 //  POINT-IN-POLYGON ALGORITHM
 // ============================================================
