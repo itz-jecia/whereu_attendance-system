@@ -210,6 +210,7 @@
 
         <div class="input-group">
             <label for="studentID">Student ID</label>
+            <input type="text" id="studentID" placeholder="e.g. 2023-1001" autocomplete="off" />
         </div>
 
         <button class="btn-checkin" id="checkinBtn">Verify Location</button>
@@ -225,34 +226,21 @@
         </div>
     </div>
 
-    <!-- ===== FIREBASE ===== -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="geofence.js"></script>
 
     <script>
-        // ============================================================
-        //  ELEMENTS
-        // ============================================================
-
         const studentIDInput = document.getElementById('studentID');
         const checkinBtn = document.getElementById('checkinBtn');
         const statusDiv = document.getElementById('statusMessage');
         const subjectBadge = document.getElementById('subjectBadge');
 
-        // ============================================================
-        //  STATUS HELPER
-        // ============================================================
-
         function showStatus(message, type) {
             statusDiv.textContent = message;
             statusDiv.className = 'status ' + type;
         }
-
-        // ============================================================
-        //  GET ACTIVE SUBJECT
-        // ============================================================
 
         function getActiveSubject(subjects) {
             const now = new Date();
@@ -272,13 +260,8 @@
                     return { id: subjectID, name: subject.name };
                 }
             }
-
             return null;
         }
-
-        // ============================================================
-        //  LOAD SUBJECT BADGE
-        // ============================================================
 
         function refreshSubjectBadge() {
             database.ref('subjects').once('value').then((snapshot) => {
@@ -297,10 +280,6 @@
                 subjectBadge.className = 'subject-badge none';
             });
         }
-
-        // ============================================================
-        //  HANDLE LOCATION
-        // ============================================================
 
         function handleLocation(position) {
             const lat = position.coords.latitude;
@@ -344,9 +323,8 @@
                     longitude: lng,
                     status: status,
                     date: today,
-                    timestamp: now.toISOString ( )
-                }).
-                    then(function() {
+                    timestamp: now.toISOString()
+                }).then(function() {
                     if (inside) {
                         showStatus('✅ ' + studentName + ', you are marked Present for ' + activeSubject.name + '.', 'success');
                         checkinBtn.textContent = '✓ Verified';
@@ -368,10 +346,6 @@
             });
         }
 
-        // ============================================================
-        //  CHECK IN
-        // ============================================================
-
         function checkIn() {
             const studentID = studentIDInput.value.trim();
 
@@ -389,13 +363,11 @@
             checkinBtn.textContent = 'Verifying...';
             showStatus('📍 Getting your location...', 'loading');
 
-            // Step 1: Fast cached location
             navigator.geolocation.getCurrentPosition(
                 function(position) {
                     handleLocation(position);
                 },
                 function() {
-                    // Step 2: Fallback to precise GPS
                     showStatus('📍 Getting precise location...', 'loading');
 
                     navigator.geolocation.getCurrentPosition(
@@ -404,9 +376,9 @@
                         },
                         function(error) {
                             let msg = 'GPS failed: ';
-                            if (error.code === 1) msg += 'Permission denied. Allow GPS in your browser.';
-                            else if (error.code === 2) msg += 'Signal unavailable. Go outside and try again.';
-                            else if (error.code === 3) msg += 'Request timed out. Try again.';
+                            if (error.code === 1) msg += 'Permission denied.';
+                            else if (error.code === 2) msg += 'Signal unavailable.';
+                            else if (error.code === 3) msg += 'Request timed out.';
                             else msg += error.message;
                             showStatus(msg, 'error');
                             checkinBtn.disabled = false;
@@ -419,24 +391,14 @@
             );
         }
 
-        // ============================================================
-        //  EVENT LISTENERS
-        // ============================================================
-
         checkinBtn.addEventListener('click', checkIn);
-
         studentIDInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                checkIn();
-            }
+            if (e.key === 'Enter') { e.preventDefault(); checkIn(); }
         });
-
         window.addEventListener('load', function() {
             studentIDInput.focus();
             refreshSubjectBadge();
         });
-
         setInterval(refreshSubjectBadge, 30000);
     </script>
 
