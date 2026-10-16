@@ -313,6 +313,25 @@
         const today = now.toISOString().split('T')[0];
         const inside = isInsideGeofence(lat, lng);
 
+        const deviceID = getDeviceID();
+
+        database.ref('student_devices/' + studentID).once('value').then((deviceSnap) => {
+          const linkedDevice = deviceSnap.val();
+
+        if (linkedDevice && linkedDevice !== deviceID) {
+            showStatus('❌ This student is already linked to another phone.', 'error');
+             checkinBtn.disabled = false;
+            checkinBtn.textContent = 'Verify Location';
+            return;
+        }
+
+        // Link on first check-in
+        if (!linkedDevice) {
+            database.ref('student_devices/' + studentID).set(deviceID);
+        }
+    proceedWithCheckIn();
+});
+
         // Check for GPS spoofing using previous record
         database.ref('attendance/' + activeSubject.id + '/' + studentID).once('value').then((prevSnap) => {
             const previousRecord = prevSnap.val();
