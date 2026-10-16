@@ -13,7 +13,6 @@ const campusPolygon = [
     { lat: 7.7044000, lng: 125.9949700 },
     { lat: 7.7082710, lng: 125.9947135 }   // ← Add this
 ];
-];
 
 function isInsideGeofence(lat, lng) {
     let inside = false;
