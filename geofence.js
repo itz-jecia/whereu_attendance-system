@@ -33,26 +33,6 @@ function isInsideGeofence(lat, lng) {
     return inside;
 }
 // ============================================================
-//  POINT-IN-POLYGON ALGORITHM
-// ============================================================
-
-function isInsideGeofence(lat, lng) {
-    let inside = false;
-    for (let i = 0, j = campusPolygon.length - 1; i < campusPolygon.length; j = i++) {
-        const xi = campusPolygon[i].lat;
-        const yi = campusPolygon[i].lng;
-        const xj = campusPolygon[j].lat;
-        const yj = campusPolygon[j].lng;
-
-        const intersect = ((yi > lng) !== (yj > lng)) &&
-            (lat < (xj - xi) * (lng - yi) / (yj - yi) + xi);
-
-        if (intersect) inside = !inside;
-    }
-    return inside;
-}
-
-// ============================================================
 //  HAVERSINE DISTANCE
 // ============================================================
 
