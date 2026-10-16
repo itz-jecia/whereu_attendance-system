@@ -314,10 +314,6 @@
 <script src="firebase-config.js"></script>
 
 <script>
-    // ============================================================
-    //  LOAD DATA: Students × Subjects matrix
-    // ============================================================
-
     function loadData() {
         const tbody = document.getElementById('attendanceBody');
         const thead = document.getElementById('tableHead');
@@ -332,6 +328,7 @@
             const attendance = attendanceSnap.val() || {};
 
             const subjectIDs = Object.keys(subjects);
+            const today = new Date().toISOString().split('T')[0];
 
             // ===== BUILD HEADER =====
             let headerHTML = `
@@ -358,14 +355,13 @@
                         <td>${studentInfo.name || '—'}</td>
                 `;
 
-                const today = new Date().toISOString().split('T')[0];
-
-                if (record && record.date && record.date !== today) {
-                record = null;
-                }
-
                 subjectIDs.forEach((subjectID) => {
-                    const record = (attendance[subjectID] || {})[studentID] || null;
+                    let record = (attendance[subjectID] || {})[studentID] || null;
+
+                    // Only show today's records
+                    if (record && record.date && record.date !== today) {
+                        record = null;
+                    }
 
                     if (record) {
                         const status = record.status || 'Unknown';
@@ -410,8 +406,6 @@
         document.getElementById('rejectedCount').textContent = rejected;
         document.getElementById('absentCount').textContent = absent;
     }
-
-const today = new Date().toISOString().split('T')[0];
 
     setInterval(loadData, 10000);
     window.addEventListener('load', loadData);
