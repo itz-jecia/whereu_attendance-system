@@ -396,7 +396,7 @@
 
         }).catch((error) => {
             console.error('Error loading data:', error);
-            tbody.innerHTML = `<tr><td colspan="3" class="empty-state"><p style="color:#dc2626;">Error loading data.</p></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="3" class="empty-state"><p style="color:#dc2626;">Error: ${error.message}</p></td></tr>`;
         });
     }
 
