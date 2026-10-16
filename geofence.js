@@ -70,3 +70,17 @@ function checkGPSSpoofing(lat, lng, accuracy, previousRecord) {
 
     return { suspicious: false, reason: null };
 }
+
+// ============================================================
+//  DEVICE IDENTIFICATION
+// ============================================================
+
+function getDeviceID() {
+    let deviceID = localStorage.getItem('whereU_deviceID');
+    if (!deviceID) {
+        deviceID = 'dev-' + Math.random().toString(36).substring(2, 15) +
+                   Date.now().toString(36);
+        localStorage.setItem('whereU_deviceID', deviceID);
+    }
+    return deviceID;
+}
