@@ -358,6 +358,12 @@
                         <td>${studentInfo.name || '—'}</td>
                 `;
 
+                const today = new Date().toISOString().split('T')[0];
+
+                if (record && record.date && record.date !== today) {
+                record = null;
+                }
+
                 subjectIDs.forEach((subjectID) => {
                     const record = (attendance[subjectID] || {})[studentID] || null;
 
@@ -406,11 +412,6 @@
     }
 
 const today = new Date().toISOString().split('T')[0];
-
-// Record loop:
-if (record && record.date && record.date !== today) {
-    return; // Skip old records
-}
 
     setInterval(loadData, 10000);
     window.addEventListener('load', loadData);
