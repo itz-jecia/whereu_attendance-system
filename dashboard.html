@@ -405,6 +405,13 @@
         document.getElementById('absentCount').textContent = absent;
     }
 
+const today = new Date().toISOString().split('T')[0];
+
+// Record loop:
+if (record && record.date && record.date !== today) {
+    return; // Skip old records
+}
+
     setInterval(loadData, 10000);
     window.addEventListener('load', loadData);
 </script>
