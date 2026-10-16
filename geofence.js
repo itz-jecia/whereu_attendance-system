@@ -19,37 +19,28 @@ const campusPolygon = [
 
 function isInsideGeofence(lat, lng) {
     let inside = false;
-    const x = lng;
-    const y = lat;
-
     for (let i = 0, j = campusPolygon.length - 1; i < campusPolygon.length; j = i++) {
         const xi = campusPolygon[i].lng;
         const yi = campusPolygon[i].lat;
         const xj = campusPolygon[j].lng;
         const yj = campusPolygon[j].lat;
 
-        const intersect = ((yi > y) !== (yj > y)) &&
-            (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-
-        if (intersect) inside = !inside;
+        if (((yi > lat) !== (yj > lat)) &&
+            (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi)) {
+            inside = !inside;
+        }
     }
     return inside;
 }
 
-function haversineDistance(lat1, lng1, lat2, lng2) {
-    const R = 6371000;
-    const toRad = (deg) => deg * Math.PI / 180;
-
-    const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lng2 - lng1);
-
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-              Math.sin(dLng / 2) * Math.sin(dLng / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-}
+// ===== SELF-TEST (runs once when file loads) =====
+console.log("=== GEOFENCE SELF-TEST ===");
+console.log("campusPolygon has", campusPolygon.length, "points");
+console.log("Center (7.7045, 125.9955):", isInsideGeofence(7.7045, 125.9955));
+console.log("NW corner (7.7050341, 125.9949556):", isInsideGeofence(7.7050341, 125.9949556));
+console.log("SE corner (7.7037556, 125.9964553):", isInsideGeofence(7.7037556, 125.9964553));
+console.log("Far away (7.7000, 125.9900):", isInsideGeofence(7.7000, 125.9900));
+console.log("=== END TEST ===");
 
 // ============================================================
 //  POINT-IN-POLYGON ALGORITHM
