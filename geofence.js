@@ -19,14 +19,17 @@ const campusPolygon = [
 
 function isInsideGeofence(lat, lng) {
     let inside = false;
+    const x = lng;
+    const y = lat;
+
     for (let i = 0, j = campusPolygon.length - 1; i < campusPolygon.length; j = i++) {
         const xi = campusPolygon[i].lng;
         const yi = campusPolygon[i].lat;
         const xj = campusPolygon[j].lng;
         const yj = campusPolygon[j].lat;
 
-        const intersect = ((yi > lat) !== (yj > lat)) &&
-            (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+        const intersect = ((yi > y) !== (yj > y)) &&
+            (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
 
         if (intersect) inside = !inside;
     }
