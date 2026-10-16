@@ -314,32 +314,6 @@
 
 const inside = isInsideGeofence(lat, lng);
 
-// Check for GPS spoofing using previous record
-database.ref('attendance/' + activeSubject.id + '/' + studentID).once('value').then((prevSnap) => {
-    const previousRecord = prevSnap.val();
-    const spoofCheck = checkGPSSpoofing(lat, lng, position.coords.accuracy, previousRecord);
-
-    if (spoofCheck.suspicious) {
-        // Mark as spoofing detected
-        database.ref('attendance/' + activeSubject.id + '/' + studentID).set({
-            studentID: studentID,
-            name: studentName,
-            subject: activeSubject.name,
-            latitude: lat,
-            longitude: lng,
-            status: 'Rejected - GPS Spoofing Detected',
-            spoofReason: spoofCheck.reason,
-            date: today,
-            timestamp: now.toISOString()
-        }).then(() => {
-            showStatus('❌ GPS spoofing detected: ' + spoofCheck.reason, 'error');
-            checkinBtn.textContent = 'Try Again';
-        }).finally(() => {
-            checkinBtn.disabled = false;
-        });
-        return;
-    }
-
     // Normal check-in
     const status = inside ? 'Present' : 'Rejected - Outside Campus';
 
