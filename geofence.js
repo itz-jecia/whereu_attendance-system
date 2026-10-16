@@ -106,3 +106,51 @@ function getActiveSubject(subjects, currentTime) {
     }
     return null;
 }
+
+// ============================================================
+//  ANTI-SPOOFING DETECTION
+// ============================================================
+
+function checkGPSSpoofing(lat, lng, accuracy, previousRecord) {
+    // If no previous record exists, allow it
+    if (!previousRecord || !previousRecord.latitude || !previousRecord.timestamp) {
+        return { suspicious: false, reason: null };
+    }
+
+    const prevLat = previousRecord.latitude;
+    const prevLng = previousRecord.longitude;
+    const prevTime = new Date(previousRecord.timestamp).getTime();
+    const nowTime = Date.now();
+    const timeDiffHours = (nowTime - prevTime) / 3600000;
+
+    // RULE 1: Check for impossible speed
+    if (timeDiffHours > 0) {
+        const distanceMeters = haversineDistance(prevLat, prevLng, lat, lng);
+        const speedKmh = (distanceMeters / 1000) / timeDiffHours;
+
+        if (speedKmh > 50) {
+            return {
+                suspicious: true,
+                reason: 'Impossible speed: ' + speedKmh.toFixed(1) + ' km/h'
+            };
+        }
+    }
+
+    // RULE 2: Check for unrealistically perfect accuracy
+    if (accuracy !== null && accuracy !== undefined && accuracy < 1) {
+        return {
+            suspicious: true,
+            reason: 'Unrealistic GPS accuracy: ' + accuracy + 'm'
+        };
+    }
+
+    // RULE 3: Check for frozen location (same coords too long)
+    if (timeDiffHours > 2 && prevLat === lat && prevLng === lng) {
+        return {
+            suspicious: true,
+            reason: 'Location frozen for over 2 hours'
+        };
+    }
+
+    return { suspicious: false, reason: null };
+}
