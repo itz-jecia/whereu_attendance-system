@@ -325,39 +325,36 @@
         const deviceID = getDeviceID();
 
         // ===== DEVICE CHECK =====
-        const deviceCheckPromises = [
-        database.ref('student_devices/' + studentID).once('value'),
-        database.ref('device_links/' + deviceID).once('value')
-        ];
+        Promise.all([
+            database.ref('student_devices/' + studentID).once('value'),
+            database.ref('device_links/' + deviceID).once('value')
+        ]).then(([studentDeviceSnap, deviceLinkSnap]) => {
+            const linkedDevice = studentDeviceSnap.val();
+            const linkedStudent = deviceLinkSnap.val();
 
-        Promise.all(deviceCheckPromises).then(([studentSnap, deviceSnap]) => {
-            const linkedDevice = studentSnap.val();
-            const linkedStudent = deviceSnap.val();
+            // Rule 1: Is this student already linked to a different device?
+            if (linkedDevice && linkedDevice !== deviceID) {
+                showStatus('❌ This student is already linked to another phone.', 'error');
+                checkinBtn.disabled = false;
+                checkinBtn.textContent = 'Verify Location';
+                return;
+            }
 
-        // Rule 1: Is this student already linked to a different device?
-        if (linkedDevice && linkedDevice !== deviceID) {
-            showStatus('❌ This student is already linked to another phone.', 'error');
-            checkinBtn.disabled = false;
-            checkinBtn.textContent = 'Verify Location';
-            return;
-        }
+            // Rule 2: Is this device already linked to a different student?
+            if (linkedStudent && linkedStudent !== studentID) {
+                showStatus('❌ This phone is already linked to another student.', 'error');
+                checkinBtn.disabled = false;
+                checkinBtn.textContent = 'Verify Location';
+                return;
+            }
 
-        // Rule 2: Is this device already linked to a different student?
-        if (linkedStudent && linkedStudent !== studentID) {
-           showStatus('❌ This phone is already linked to another student.', 'error');
-            checkinBtn.disabled = false;
-            checkinBtn.textContent = 'Verify Location';
-            return;
-        }
-
-         // If both pass, link them
-        if (!linkedDevice) {
-            database.ref('student_devices/' + studentID).set(deviceID);
-        }
-        if (!linkedStudent) {
-            database.ref('device_links/' + deviceID).set(studentID);
-        }
-});
+            // Link both directions
+            if (!linkedDevice) {
+                database.ref('student_devices/' + studentID).set(deviceID);
+            }
+            if (!linkedStudent) {
+                database.ref('device_links/' + deviceID).set(studentID);
+            }
 
             // ===== GPS SPOOFING CHECK =====
             database.ref('attendance/' + activeSubject.id + '/' + studentID).once('value').then((prevSnap) => {
@@ -412,7 +409,7 @@
                     checkinBtn.disabled = false;
                 });
             });
-        });
+        });   // 
     }).catch(function(error) {
         showStatus('Database error: ' + error.message, 'error');
         checkinBtn.disabled = false;
