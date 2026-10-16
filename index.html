@@ -324,7 +324,6 @@
         const inside = isInsideGeofence(lat, lng);
         const deviceID = getDeviceID();
 
-        // ===== DEVICE CHECK =====
         Promise.all([
             database.ref('student_devices/' + studentID).once('value'),
             database.ref('device_links/' + deviceID).once('value')
@@ -332,7 +331,6 @@
             const linkedDevice = studentDeviceSnap.val();
             const linkedStudent = deviceLinkSnap.val();
 
-            // Rule 1: Is this student already linked to a different device?
             if (linkedDevice && linkedDevice !== deviceID) {
                 showStatus('❌ This student is already linked to another phone.', 'error');
                 checkinBtn.disabled = false;
@@ -340,7 +338,6 @@
                 return;
             }
 
-            // Rule 2: Is this device already linked to a different student?
             if (linkedStudent && linkedStudent !== studentID) {
                 showStatus('❌ This phone is already linked to another student.', 'error');
                 checkinBtn.disabled = false;
@@ -348,7 +345,6 @@
                 return;
             }
 
-            // Link both directions
             if (!linkedDevice) {
                 database.ref('student_devices/' + studentID).set(deviceID);
             }
@@ -356,7 +352,6 @@
                 database.ref('device_links/' + deviceID).set(studentID);
             }
 
-            // ===== GPS SPOOFING CHECK =====
             database.ref('attendance/' + activeSubject.id + '/' + studentID).once('value').then((prevSnap) => {
                 const previousRecord = prevSnap.val();
                 const spoofCheck = checkGPSSpoofing(lat, lng, position.coords.accuracy, previousRecord);
@@ -372,16 +367,15 @@
                         spoofReason: spoofCheck.reason,
                         date: today,
                         timestamp: now.toISOString()
-                    }).then(() => {
+                    }).then(function() {
                         showStatus('❌ GPS spoofing detected: ' + spoofCheck.reason, 'error');
                         checkinBtn.textContent = 'Try Again';
-                    }).finally(() => {
+                    }).finally(function() {
                         checkinBtn.disabled = false;
                     });
                     return;
                 }
 
-                // ===== SAVE ATTENDANCE =====
                 const status = inside ? 'Present' : 'Rejected - Outside Campus';
 
                 database.ref('attendance/' + activeSubject.id + '/' + studentID).set({
@@ -409,7 +403,7 @@
                     checkinBtn.disabled = false;
                 });
             });
-        });   // 
+        });
     }).catch(function(error) {
         showStatus('Database error: ' + error.message, 'error');
         checkinBtn.disabled = false;
