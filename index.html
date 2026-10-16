@@ -232,7 +232,6 @@
     <script src="geofence.js"></script>
 
     <script>
-        alert("geofence says: " + isInsideGeofence(7.7045, 125.9955));
         const studentIDInput = document.getElementById('studentID');
         const checkinBtn = document.getElementById('checkinBtn');
         const statusDiv = document.getElementById('statusMessage');
@@ -327,7 +326,8 @@
                     timestamp: now.toISOString()
                 }).then(function() {
                     if (inside) {
-                        showStatus('✅ ' + studentName + ', you are marked Present for ' + activeSubject.name + '.', 'success');
+                        showStatus('✅ ' + 
+                                   studentName + ', you are marked Present for ' + activeSubject.name + '.', 'success');
                         checkinBtn.textContent = '✓ Verified';
                     } else {
                         showStatus('❌ You are outside the campus. Attendance rejected.', 'error');
@@ -362,14 +362,14 @@
 
             checkinBtn.disabled = true;
             checkinBtn.textContent = 'Verifying...';
-            showStatus('📍 Getting your location...', 'loading');
+            showStatus('Getting your location...', 'loading');
 
             navigator.geolocation.getCurrentPosition(
                 function(position) {
                     handleLocation(position);
                 },
                 function() {
-                    showStatus('📍 Getting precise location...', 'loading');
+                    showStatus('Getting precise location...', 'loading');
 
                     navigator.geolocation.getCurrentPosition(
                         function(position) {
