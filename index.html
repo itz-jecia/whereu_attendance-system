@@ -344,8 +344,10 @@
                     latitude: lat,
                     longitude: lng,
                     status: status,
-                    timestamp: new Date().toISOString()
-                }).then(function() {
+                    date: today,
+                    timestamp: now.toISOString ( )
+                }).
+                    then(function() {
                     if (inside) {
                         showStatus('✅ ' + studentName + ', you are marked Present for ' + activeSubject.name + '.', 'success');
                         checkinBtn.textContent = '✓ Verified';
