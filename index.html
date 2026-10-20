@@ -214,6 +214,10 @@
         </div>
 
         <button class="btn-checkin" id="checkinBtn">Verify Location</button>
+        
+        <button id="simulateLeaveBtn" style="margin-top: 10px; background: #dc2626; color: white; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-size: 12px;">
+                (For Demo Only: Simulate Leaving Campus)
+        </button>
 
         <div class="status" id="statusMessage"></div>
 
@@ -467,6 +471,35 @@
             refreshSubjectBadge();
         });
         setInterval(refreshSubjectBadge, 30000);
+
+        document.getElementById('simulateLeaveBtn').addEventListener('click', function() {
+    const studentID = studentIDInput.value.trim();
+    if (!studentID) {
+        alert("Enter a student ID first.");
+        return;
+    }
+
+    // We simulate the student moving OUTSIDE the campus polygon
+    const fakeOutsideLat = 7.7100; 
+    const fakeOutsideLng = 125.9955;
+    const inside = isInsideGeofence(fakeOutsideLat, fakeOutsideLng); // This will be false
+
+    // Find their active subject
+    database.ref('subjects').once('value').then((snapshot) => {
+        const subjects = snapshot.val();
+        const active = getActiveSubject(subjects);
+        
+        if (active) {
+            // Update their record to show they are now outside
+            database.ref('attendance/' + active.id + '/' + studentID).update({
+                latitude: fakeOutsideLat,
+                longitude: fakeOutsideLng,
+                current_inside: inside // This triggers the dashboard alert
+            });
+            alert("Simulated leaving campus. Check the teacher dashboard!");
+        }
+    });
+});
     </script>
 
 </body>
