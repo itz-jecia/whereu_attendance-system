@@ -250,6 +250,10 @@
 <div class="container">
 
     <div class="header">
+        <!-- Notification Area -->
+        <div id="alertBox" style="display: none; background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #fca5a5; font-weight: bold;">
+            ⚠️ ALERT: <span id="alertMessage"></span>
+        </div>
         <div class="header-left">
             <h1>Attendance Records</h1>
             <p>Real-time view of student check-ins</p>
@@ -406,6 +410,51 @@
         document.getElementById('rejectedCount').textContent = rejected;
         document.getElementById('absentCount').textContent = absent;
     }
+
+    function checkGeofenceBreaches() {
+    // We only check if there is data
+    database.ref('attendance').on('value', (snapshot) => {
+        const attendanceData = snapshot.val();
+        if (!attendanceData) return;
+
+        let breachFound = false;
+        let breachStudent = "";
+
+        // Loop through all subjects and students
+        for (const subjectID in attendanceData) {
+            const students = attendanceData[subjectID];
+            for (const studentID in students) {
+                const record = students[studentID];
+                
+                // Check if the student was marked Present, but their current ping is outside
+                if (record.status === 'Present' && record.current_inside === false) {
+                    breachFound = true;
+                    breachStudent = record.name;
+
+                    // Auto-cancel their attendance in Firebase
+                    database.ref('attendance/' + subjectID + '/' + studentID).update({
+                        status: 'Rejected - Left Campus',
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            }
+        }
+
+        // Show the alert to the teacher
+        const alertBox = document.getElementById('alertBox');
+        const alertMessage = document.getElementById('alertMessage');
+
+        if (breachFound) {
+            alertMessage.textContent = breachStudent + " has left the campus! Attendance has been cancelled.";
+            alertBox.style.display = 'block';
+        } else {
+            alertBox.style.display = 'none';
+        }
+    });
+}
+
+// Call this when the dashboard loads
+window.addEventListener('load', checkGeofenceBreaches);
 
     setInterval(loadData, 10000);
     window.addEventListener('load', loadData);
