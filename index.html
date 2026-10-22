@@ -232,17 +232,16 @@
     <script src="geofence.js"></script>
 
     <script>
-          function getDeviceID() {
-        let deviceID = localStorage.getItem('whereU_deviceID');
-        if (!deviceID) {
-            deviceID = 'dev-' + Math.random().toString(36).substring(2, 15) +
-                       Date.now().toString(36);
-            localStorage.setItem('whereU_deviceID', deviceID);
+        function getDeviceID() {
+            let deviceID = localStorage.getItem('whereU_deviceID');
+            if (!deviceID) {
+                deviceID = 'dev-' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+                localStorage.setItem('whereU_deviceID', deviceID);
+            }
+            return deviceID;
         }
-        return deviceID;
-    }
 
-    const studentIDInput = document.getElementById('studentID');
+        const studentIDInput = document.getElementById('studentID');
         const checkinBtn = document.getElementById('checkinBtn');
         const statusDiv = document.getElementById('statusMessage');
         const subjectBadge = document.getElementById('subjectBadge');
@@ -291,127 +290,125 @@
             });
         }
 
-   function handleLocation(position) {
-    const lat = position.coords.latitude;
-    const lng = position.coords.longitude;
-    const studentID = studentIDInput.value.trim();
+        function handleLocation(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const studentID = studentIDInput.value.trim();
 
-    Promise.all([
-        database.ref('students/' + studentID).once('value'),
-        database.ref('subjects').once('value')
-    ]).then(([studentSnap, subjectsSnap]) => {
-        if (!studentSnap.exists()) {
-            showStatus('❌ Student ID not found.', 'error');
-            checkinBtn.disabled = false;
-            checkinBtn.textContent = 'Verify Location';
-            return;
-        }
-
-        const studentData = studentSnap.val();
-        const studentName = studentData.name || 'Unknown';
-        const subjects = subjectsSnap.val() || {};
-        const activeSubject = getActiveSubject(subjects);
-
-        if (!activeSubject) {
-            showStatus('❌ No class is currently in session.', 'error');
-            checkinBtn.disabled = false;
-            checkinBtn.textContent = 'Verify Location';
-            return;
-        }
-
-        const now = new Date();
-        const today = now.toISOString().split('T')[0];
-        const deviceID = getDeviceID();
-
-        Promise.all([
-            database.ref('student_devices/' + studentID).once('value'),
-            database.ref('device_links/' + deviceID).once('value')
-        ]).then(([studentDeviceSnap, deviceLinkSnap]) => {
-            const linkedDevice = studentDeviceSnap.val();
-            const linkedStudent = deviceLinkSnap.val();
-
-            if (linkedDevice && linkedDevice !== deviceID) {
-                showStatus('❌ This student is already linked to another phone.', 'error');
-                checkinBtn.disabled = false;
-                checkinBtn.textContent = 'Verify Location';
-                return;
-            }
-
-            if (linkedStudent && linkedStudent !== studentID) {
-                showStatus('❌ This phone is already linked to another student.', 'error');
-                checkinBtn.disabled = false;
-                checkinBtn.textContent = 'Verify Location';
-                return;
-            }
-
-            if (!linkedDevice) {
-                database.ref('student_devices/' + studentID).set(deviceID);
-            }
-            if (!linkedStudent) {
-                database.ref('device_links/' + deviceID).set(studentID);
-            }
-
-            // ===== SPOOFING CHECK FIRST =====
-            database.ref('attendance/' + activeSubject.id + '/' + studentID).once('value').then((prevSnap) => {
-                const previousRecord = prevSnap.val();
-                const spoofCheck = checkGPSSpoofing(lat, lng, position.coords.accuracy, previousRecord);
-
-                if (spoofCheck.suspicious) {
-                    database.ref('attendance/' + activeSubject.id + '/' + studentID).set({
-                        studentID: studentID,
-                        name: studentName,
-                        subject: activeSubject.name,
-                        latitude: lat,
-                        longitude: lng,
-                        status: 'Rejected - GPS Spoofing Detected',
-                        spoofReason: spoofCheck.reason,
-                        date: today,
-                        timestamp: now.toISOString()
-                    }).then(function() {
-                        showStatus('❌ GPS spoofing detected: ' + spoofCheck.reason, 'error');
-                        checkinBtn.textContent = 'Try Again';
-                    }).finally(function() {
-                        checkinBtn.disabled = false;
-                    });
+            Promise.all([
+                database.ref('students/' + studentID).once('value'),
+                database.ref('subjects').once('value')
+            ]).then(([studentSnap, subjectsSnap]) => {
+                if (!studentSnap.exists()) {
+                    showStatus('❌ Student ID not found.', 'error');
+                    checkinBtn.disabled = false;
+                    checkinBtn.textContent = 'Verify Location';
                     return;
                 }
 
-                // ===== GEOFENCE CHECK AFTER =====
-                const inside = isInsideGeofence(lat, lng);
-                const status = inside ? 'Present' : 'Rejected - Outside Campus';
+                const studentData = studentSnap.val();
+                const studentName = studentData.name || 'Unknown';
+                const subjects = subjectsSnap.val() || {};
+                const activeSubject = getActiveSubject(subjects);
 
-                database.ref('attendance/' + activeSubject.id + '/' + studentID).set({
-                    studentID: studentID,
-                    name: studentName,
-                    subject: activeSubject.name,
-                    latitude: lat,
-                    longitude: lng,
-                    status: status,
-                    accuracy: position.coords.accuracy || null,
-                    date: today,
-                    timestamp: now.toISOString()
-                }).then(function() {
-                    if (inside) {
-                        showStatus('✅ ' + studentName + ', you are marked Present for ' + activeSubject.name + '.', 'success');
-                        checkinBtn.textContent = '✓ Verified';
-                    } else {
-                        showStatus('❌ You are outside the campus. Attendance rejected.', 'error');
-                        checkinBtn.textContent = 'Try Again';
-                    }
-                }).catch(function(error) {
-                    showStatus('Error: ' + error.message, 'error');
-                    checkinBtn.textContent = 'Verify Location';
-                }).finally(function() {
+                if (!activeSubject) {
+                    showStatus('❌ No class is currently in session.', 'error');
                     checkinBtn.disabled = false;
+                    checkinBtn.textContent = 'Verify Location';
+                    return;
+                }
+
+                const now = new Date();
+                const today = now.toISOString().split('T')[0];
+                const deviceID = getDeviceID();
+
+                Promise.all([
+                    database.ref('student_devices/' + studentID).once('value'),
+                    database.ref('device_links/' + deviceID).once('value')
+                ]).then(([studentDeviceSnap, deviceLinkSnap]) => {
+                    const linkedDevice = studentDeviceSnap.val();
+                    const linkedStudent = deviceLinkSnap.val();
+
+                    if (linkedDevice && linkedDevice !== deviceID) {
+                        showStatus('❌ This student is already linked to another phone.', 'error');
+                        checkinBtn.disabled = false;
+                        checkinBtn.textContent = 'Verify Location';
+                        return;
+                    }
+
+                    if (linkedStudent && linkedStudent !== studentID) {
+                        showStatus('❌ This phone is already linked to another student.', 'error');
+                        checkinBtn.disabled = false;
+                        checkinBtn.textContent = 'Verify Location';
+                        return;
+                    }
+
+                    if (!linkedDevice) {
+                        database.ref('student_devices/' + studentID).set(deviceID);
+                    }
+                    if (!linkedStudent) {
+                        database.ref('device_links/' + deviceID).set(studentID);
+                    }
+
+                    database.ref('attendance/' + activeSubject.id + '/' + studentID).once('value').then((prevSnap) => {
+                        const previousRecord = prevSnap.val();
+                        const spoofCheck = checkGPSSpoofing(lat, lng, position.coords.accuracy, previousRecord);
+
+                        if (spoofCheck.suspicious) {
+                            database.ref('attendance/' + activeSubject.id + '/' + studentID).set({
+                                studentID: studentID,
+                                name: studentName,
+                                subject: activeSubject.name,
+                                latitude: lat,
+                                longitude: lng,
+                                status: 'Rejected - GPS Spoofing Detected',
+                                spoofReason: spoofCheck.reason,
+                                date: today,
+                                timestamp: now.toISOString()
+                            }).then(function() {
+                                showStatus('❌ GPS spoofing detected: ' + spoofCheck.reason, 'error');
+                                checkinBtn.textContent = 'Try Again';
+                            }).finally(function() {
+                                checkinBtn.disabled = false;
+                            });
+                            return;
+                        }
+
+                        const inside = isInsideGeofence(lat, lng);
+                        const status = inside ? 'Present' : 'Rejected - Outside Campus';
+
+                        database.ref('attendance/' + activeSubject.id + '/' + studentID).set({
+                            studentID: studentID,
+                            name: studentName,
+                            subject: activeSubject.name,
+                            latitude: lat,
+                            longitude: lng,
+                            status: status,
+                            accuracy: position.coords.accuracy || null,
+                            date: today,
+                            timestamp: now.toISOString()
+                        }).then(function() {
+                            if (inside) {
+                                showStatus('✅ ' + studentName + ', you are marked Present for ' + activeSubject.name + '.', 'success');
+                                checkinBtn.textContent = '✓ Verified';
+                            } else {
+                                showStatus('❌ You are outside the campus. Attendance rejected.', 'error');
+                                checkinBtn.textContent = 'Try Again';
+                            }
+                        }).catch(function(error) {
+                            showStatus('Error: ' + error.message, 'error');
+                            checkinBtn.textContent = 'Verify Location';
+                        }).finally(function() {
+                            checkinBtn.disabled = false;
+                        });
+                    });
                 });
+            }).catch(function(error) {
+                showStatus('Database error: ' + error.message, 'error');
+                checkinBtn.disabled = false;
+                checkinBtn.textContent = 'Verify Location';
             });
-        });
-    }).catch(function(error) {
-        showStatus('Database error: ' + error.message, 'error');
-        checkinBtn.disabled = false;
-        checkinBtn.textContent = 'Verify Location';
-    });
-}
+        }
 
         function checkIn() {
             const studentID = studentIDInput.value.trim();
@@ -436,7 +433,6 @@
                 },
                 function() {
                     showStatus('Getting precise location...', 'loading');
-
                     navigator.geolocation.getCurrentPosition(
                         function(position) {
                             handleLocation(position);
@@ -459,11 +455,20 @@
         }
 
         checkinBtn.addEventListener('click', checkIn);
+        
         studentIDInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); checkIn(); }
+            if (e.key === 'Enter') { 
+                e.preventDefault(); 
+                checkIn(); 
+            }
         });
-    });
-});
+
+        window.addEventListener('load', function() {
+            studentIDInput.focus();
+            refreshSubjectBadge(); 
+        });
+
+        setInterval(refreshSubjectBadge, 30000);
     </script>
 
 </body>
