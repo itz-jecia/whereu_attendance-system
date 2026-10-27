@@ -1,33 +1,7 @@
 // ============================================================
-//  GEOFENCE: Point-in-Polygon (Ray Casting Algorithm)
+//  HAVERSINE DISTANCE FORMULA
+//  Used for 10-meter Classroom Geofence and Anti-Spoofing
 // ============================================================
-
-const campusPolygon = [
-    { lat: 7.7050000, lng: 125.9950000 },
-    { lat: 7.7049500, lng: 125.9957500 },
-    { lat: 7.7049000, lng: 125.9962000 },
-    { lat: 7.7043000, lng: 125.9962500 },
-    { lat: 7.7038000, lng: 125.9964000 },
-    { lat: 7.7039000, lng: 125.9958000 },
-    { lat: 7.7040500, lng: 125.9949500 },
-    { lat: 7.7044000, lng: 125.9949700 }
-];
-
-function isInsideGeofence(lat, lng) {
-    let inside = false;
-    for (let i = 0, j = campusPolygon.length - 1; i < campusPolygon.length; j = i++) {
-        const xi = campusPolygon[i].lng;
-        const yi = campusPolygon[i].lat;
-        const xj = campusPolygon[j].lng;
-        const yj = campusPolygon[j].lat;
-
-        if (((yi > lat) !== (yj > lat)) &&
-            (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi)) {
-            inside = !inside;
-        }
-    }
-    return inside;
-}
 
 function haversineDistance(lat1, lng1, lat2, lng2) {
     const R = 6371000;
@@ -40,6 +14,10 @@ function haversineDistance(lat1, lng1, lat2, lng2) {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
 }
+
+// ============================================================
+//  ANTI-SPOOFING CHECK
+// ============================================================
 
 function checkGPSSpoofing(lat, lng, accuracy, previousRecord) {
     if (!previousRecord || !previousRecord.latitude || !previousRecord.timestamp) {
@@ -72,14 +50,26 @@ function checkGPSSpoofing(lat, lng, accuracy, previousRecord) {
 }
 
 // ============================================================
-//  DEVICE IDENTIFICATION
+//  DEVICE IDENTIFICATION (FINGERPRINT)
+//  Used to prevent bypassing the system via Incognito mode
 // ============================================================
 
 function getDeviceID() {
     let deviceID = localStorage.getItem('whereU_deviceID');
     if (!deviceID) {
-        deviceID = 'dev-' + Math.random().toString(36).substring(2, 15) +
-                   Date.now().toString(36);
+        // Create a fingerprint based on hardware and browser settings
+        const fingerprint = navigator.userAgent + 
+                            screen.width + 'x' + screen.height + 
+                            navigator.language + 
+                            new Date().getTimezoneOffset();
+        
+        // Hash the fingerprint into a short ID
+        let hash = 0;
+        for (let i = 0; i < fingerprint.length; i++) {
+            hash = ((hash << 5) - hash) + fingerprint.charCodeAt(i);
+            hash |= 0;
+        }
+        deviceID = 'dev-' + Math.abs(hash);
         localStorage.setItem('whereU_deviceID', deviceID);
     }
     return deviceID;
