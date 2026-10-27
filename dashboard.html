@@ -12,15 +12,28 @@
         .header-left h1 { font-size: 28px; font-weight: 600; color: #0f172a; }
         .header-left p { color: #64748b; font-size: 15px; margin-top: 4px; }
         
-        .control-panel { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-        .beacon-box { flex: 1; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 15px 20px; border-radius: 8px; display: flex; align-items: center; gap: 10px; font-weight: 500; min-width: 300px; }
+        /* CONTROL PANEL */
+        .control-panel { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+        
+        .session-card { flex: 1; min-width: 350px; background: #ffffff; border: 1px solid #e2e8f0; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .session-card h3 { font-size: 14px; color: #334155; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; }
+        .btn-live { background: #16a34a; color: white; width: 100%; }
+        .btn-live:hover { background: #15803d; }
+        .btn-remote { background: #1e293b; color: white; width: 100%; margin-top: 10px; }
+        .btn-remote:hover { background: #0f172a; }
+        
+        select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; margin-bottom: 10px; font-size: 14px; outline: none; }
+
+        /* STATUS BANNER */
+        .status-banner { display: none; padding: 15px 20px; border-radius: 8px; margin-bottom: 24px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .banner-live { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+        .banner-remote { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
         .pulse-dot { width: 10px; height: 10px; background: #22c55e; border-radius: 50%; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        
-        .remote-box { flex: 1; background: #fff; border: 1px solid #e2e8f0; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .remote-btn { background: #1e293b; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .remote-btn:hover { background: #0f172a; }
-        
+
+        /* TABLE & STATS */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
         .stat-card { background: #fff; padding: 20px 24px; border-radius: 12px; border: 1px solid #e2e8f0; }
         .stat-label { font-size: 13px; font-weight: 500; color: #94a3b8; text-transform: uppercase; }
@@ -51,22 +64,27 @@
         </div>
     </div>
 
+    <!-- STATUS BANNER (Hidden by default) -->
+    <div id="statusBanner" class="status-banner">
+        <div class="pulse-dot" id="bannerDot"></div>
+        <span id="bannerText">Session Active</span>
+    </div>
+
+    <!-- CONTROL PANEL -->
     <div class="control-panel">
-        <!-- Automatic Beacon -->
-        <div class="beacon-box">
-            <div class="pulse-dot"></div>
-            <span id="beaconText">Starting classroom GPS beacon...</span>
+        <!-- Live Beacon Card -->
+        <div class="session-card">
+            <h3>Live Classroom Beacon</h3>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Use this if you are physically inside the classroom.</p>
+            <button id="startLiveBtn" class="btn btn-live">Live Beacon</button>
         </div>
 
-        <!-- Remote Activity Mode -->
-        <div class="remote-box">
-            <div>
-                <strong>Remote Activity Mode:</strong> 
-                <select id="roomSelect" style="padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1; margin-left: 5px;">
-                    <option value="main_room">Main Classroom (7.704583, 125.996222)</option>
-                </select>
-            </div>
-            <button id="startRemoteSessionBtn" class="remote-btn">Start Remote Activity</button>
+        <!-- Remote Session Card -->
+        <div class="session-card">
+            <h3>Remote Activity Mode</h3>
+                <option value="main_room">Main Classroom (7.704583, 125.996222)</option>
+            </select>
+            <button id="startRemoteBtn" class="btn btn-remote">Remote Activity</button>
         </div>
     </div>
 
@@ -97,33 +115,61 @@
 <script src="geofence.js"></script>
 
 <script>
-    // ===== 1. AUTOMATIC GPS BEACON =====
-    function broadcastClassroomLocation() {
+    let beaconInterval;
+
+    // ===== 1. START LIVE BEACON BUTTON =====
+    document.getElementById('startLiveBtn').addEventListener('click', function() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 function(position) {
-                    database.ref('active_session').set({
-                        teacherLat: position.coords.latitude,
-                        teacherLng: position.coords.longitude,
-                        status: 'active',
-                        mode: 'live',
-                        timestamp: new Date().toISOString()
-                    });
-                    document.getElementById('beaconText').textContent = "Live Beacon ACTIVE. Students must be within 10 meters of this device.";
-                    document.getElementById('beaconText').style.color = "#166534";
+                    // Clear any existing interval
+                    if (beaconInterval) clearInterval(beaconInterval);
+
+                    // Function to update location
+                    const updateLiveLocation = () => {
+                        database.ref('active_session').set({
+                            teacherLat: position.coords.latitude,
+                            teacherLng: position.coords.longitude,
+                            status: 'active',
+                            mode: 'live',
+                            timestamp: new Date().toISOString()
+                        });
+                    };
+
+                    // Run immediately, then every 30 seconds
+                    updateLiveLocation();
+                    beaconInterval = setInterval(function() {
+                        navigator.geolocation.getCurrentPosition(p => {
+                            database.ref('active_session').set({
+                                teacherLat: p.coords.latitude,
+                                teacherLng: p.coords.longitude,
+                                status: 'active',
+                                mode: 'live',
+                                timestamp: new Date().toISOString()
+                            });
+                        });
+                    }, 30000);
+
+                    // Update UI Banner
+                    const banner = document.getElementById('statusBanner');
+                    banner.style.display = "flex";
+                    banner.className = "status-banner banner-live";
+                    document.getElementById('bannerDot').style.display = "block";
+                    document.getElementById('bannerText').textContent = "LIVE BEACON ACTIVE: Students must be within 10 meters of this device.";
                 },
                 function(error) {
-                    document.getElementById('beaconText').textContent = "WARNING: GPS failed. Please allow location access.";
-                    document.getElementById('beaconText').style.color = "#dc2626";
+                    alert("GPS failed. Please allow location access on this device.");
                 },
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
         }
-    }
+    });
 
-    // ===== 2. REMOTE ACTIVITY MODE =====
-    document.getElementById('startRemoteSessionBtn').addEventListener('click', function() {
-        // The exact coordinates of the classroom provided
+    // ===== 2. START REMOTE ACTIVITY BUTTON =====
+    document.getElementById('startRemoteBtn').addEventListener('click', function() {
+        // Stop the live beacon interval if it's running
+        if (beaconInterval) clearInterval(beaconInterval);
+
         const roomLat = 7.704583;
         const roomLng = 125.996222;
 
@@ -135,20 +181,22 @@
             timestamp: new Date().toISOString()
         });
 
-        document.getElementById('beaconText').textContent = "REMOTE SESSION ACTIVE: Students must be inside the Main Classroom.";
-        document.getElementById('beaconText').style.color = "#2563eb";
-        alert("Remote activity started. Students can now check in to the Main Classroom.");
+        // Update UI Banner
+        const banner = document.getElementById('statusBanner');
+        banner.style.display = "flex";
+        banner.className = "status-banner banner-remote";
+        document.getElementById('bannerDot').style.display = "none"; // Hide pulse
+        document.getElementById('bannerText').textContent = "REMOTE SESSION ACTIVE: Students must be inside Room 101.";
+        
+        alert("Remote activity started. Students can now check in to Room 101.");
     });
 
-    // Start beacon on load, then update every 30 seconds
+    // ===== 3. LOAD ATTENDANCE DATA =====
     window.addEventListener('load', function() {
-        broadcastClassroomLocation();
-        setInterval(broadcastClassroomLocation, 30000);
         loadData();
         setInterval(loadData, 10000);
     });
 
-    // ===== 3. LOAD ATTENDANCE DATA =====
     function loadData() {
         const tbody = document.getElementById('attendanceBody');
         const thead = document.getElementById('tableHead');
@@ -165,7 +213,6 @@
             const subjectIDs = Object.keys(subjects);
             const today = new Date().toISOString().split('T')[0];
 
-            // Header
             let headerHTML = `<tr><th>Student ID</th><th>Name</th>`;
             subjectIDs.forEach((subjectID) => {
                 headerHTML += `<th class="subject-col">${subjects[subjectID].name || subjectID}</th>`;
@@ -173,7 +220,6 @@
             headerHTML += `</tr>`;
             thead.innerHTML = headerHTML;
 
-            // Rows
             const studentIDs = Object.keys(students);
             let present = 0, rejected = 0, absent = 0, html = '';
 
