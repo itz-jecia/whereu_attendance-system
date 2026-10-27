@@ -8,37 +8,44 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
         body { background: #f1f5f9; min-height: 100vh; padding: 32px 24px; }
         .container { max-width: 1400px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 16px; }
+        
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
         .header-left h1 { font-size: 28px; font-weight: 600; color: #0f172a; }
         .header-left p { color: #64748b; font-size: 15px; margin-top: 4px; }
         
-        /* STATUS BANNER */
-        .status-banner { display: none; padding: 15px 20px; border-radius: 8px; margin-bottom: 24px; font-weight: 600; align-items: center; gap: 10px; }
-        .banner-live { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
-        .banner-remote { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
-        .banner-stopped { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
-        .pulse-dot { width: 10px; height: 10px; background: #22c55e; border-radius: 50%; animation: pulse 1.5s infinite; }
+        /* SUBTLE STATUS BADGE */
+        .status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 100px; font-size: 13px; font-weight: 600; margin-bottom: 24px; }
+        .status-stopped { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+        .status-live { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+        .status-remote { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+        .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
         /* CONTROL PANEL */
-        .control-panel { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
-        .session-card { flex: 1; min-width: 350px; background: #ffffff; border: 1px solid #e2e8f0; padding: 16px 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: 0.3s; }
-        .session-card h3 { font-size: 14px; color: #334155; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .control-panel { display: flex; gap: 20px; margin-bottom: 32px; flex-wrap: wrap; }
+        .session-card { flex: 1; min-width: 320px; background: #ffffff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); transition: 0.3s; }
+        .session-card h3 { font-size: 13px; color: #64748b; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .session-card p { font-size: 13px; color: #94a3b8; margin-bottom: 16px; }
         
-        .btn { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; width: 100%; }
-        .btn-live { background: #16a34a; color: white; }
-        .btn-live:hover { background: #15803d; }
-        .btn-remote { background: #1e293b; color: white; }
-        .btn-remote:hover { background: #0f172a; }
-        .btn-stop { background: #dc2626 !important; color: white !important; }
-        .btn-stop:hover { background: #b91c1c !important; }
+        /* PROFESSIONAL BUTTONS */
+        .btn { padding: 12px 20px; border: 1px solid transparent; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; transition: all 0.2s; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
         
-        select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; margin-bottom: 10px; font-size: 14px; outline: none; }
+        .btn-live { background: #ffffff; color: #166534; border-color: #bbf7d0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .btn-live:hover { background: #f0fdf4; }
+        
+        .btn-remote { background: #ffffff; color: #1e293b; border-color: #cbd5e1; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .btn-remote:hover { background: #f8fafc; }
+        
+        .btn-stop { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+        .btn-stop:hover { background: #fee2e2; }
+        
+        select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 12px; font-size: 14px; outline: none; color: #334155; background: #f8fafc; }
 
         /* TABLE & STATS */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
         .stat-card { background: #fff; padding: 20px 24px; border-radius: 12px; border: 1px solid #e2e8f0; }
-        .stat-label { font-size: 13px; font-weight: 500; color: #94a3b8; text-transform: uppercase; }
+        .stat-label { font-size: 13px; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
         .stat-number { font-size: 32px; font-weight: 600; color: #0f172a; margin-top: 4px; }
         .stat-number.present { color: #16a34a; } .stat-number.rejected { color: #dc2626; } .stat-number.absent { color: #94a3b8; }
         
@@ -66,29 +73,29 @@
         </div>
     </div>
 
-    <!-- STATUS BANNER -->
-    <div id="statusBanner" class="status-banner">
-        <div class="pulse-dot" id="bannerDot"></div>
-        <span id="bannerText">Session Active</span>
+    <!-- SUBTLE STATUS BADGE -->
+    <div id="statusBadge" class="status-badge status-stopped">
+        <div class="pulse-dot" id="badgeDot" style="display: none;"></div>
+        <span id="badgeText">Session Stopped: Check-ins Locked</span>
     </div>
 
     <!-- CONTROL PANEL -->
     <div class="control-panel">
         <!-- Live Beacon Card -->
         <div class="session-card" id="liveCard">
-            <h3>Live Classroom Beacon</h3>
-            <p id="liveDesc" style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Use this if you are physically inside the classroom.</p>
-            <button id="liveBtn" class="btn btn-live">Start Live Beacon</button>
+            <h3>Live Classroom Mode</h3>
+            <p>Start this to require students to be within 10 meters of your device.</p>
+            <button id="liveBtn" class="btn btn-live">Start Live Session</button>
         </div>
 
         <!-- Remote Session Card -->
         <div class="session-card" id="remoteCard">
             <h3>Remote Activity Mode</h3>
-            <p id="remoteDesc" style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Use this if you left an activity but are not in the room.</p>
+            <p>Set a fixed location for students completing an activity without you.</p>
             <select id="roomSelect">
-                <option value="main_room">Main Classroom (7.704583, 125.996222)</option>
+                <option value="main_room">Main Classroom</option>
             </select>
-            <button id="remoteBtn" class="btn btn-remote">Set Remote Activity</button>
+            <button id="remoteBtn" class="btn btn-remote">Set Remote Session</button>
         </div>
     </div>
 
@@ -119,11 +126,18 @@
     let isLiveActive = false;
     let isRemoteActive = false;
 
+    function updateBadge(text, className, showDot) {
+        const badge = document.getElementById('statusBadge');
+        const dot = document.getElementById('badgeDot');
+        badge.className = 'status-badge ' + className;
+        document.getElementById('badgeText').textContent = text;
+        dot.style.display = showDot ? 'block' : 'none';
+    }
+
     // ===== 1. LIVE BEACON TOGGLE =====
     document.getElementById('liveBtn').addEventListener('click', function() {
         const btn = document.getElementById('liveBtn');
         const card = document.getElementById('liveCard');
-        const banner = document.getElementById('statusBanner');
 
         if (isLiveActive) {
             // STOP LIVE
@@ -131,26 +145,20 @@
             isLiveActive = false;
             database.ref('active_session').update({ status: 'inactive' });
 
-            // Reset UI
-            btn.textContent = "Start Live Beacon";
-            btn.classList.remove('btn-stop');
-            btn.classList.add('btn-live');
+            btn.textContent = "Start Live Session";
+            btn.className = "btn btn-live";
             card.style.borderColor = "#e2e8f0";
-            banner.className = "status-banner banner-stopped";
-            banner.style.display = "flex";
-            document.getElementById('bannerDot').style.display = "none";
-            document.getElementById('bannerText').textContent = "SESSION STOPPED: Student check-ins are locked.";
+            updateBadge("Session Stopped: Check-ins Locked", "status-stopped", false);
         } else {
             // START LIVE
-            if (isRemoteActive) document.getElementById('remoteBtn').click(); // Turn off remote if active
+            if (isRemoteActive) document.getElementById('remoteBtn').click(); 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
                     isLiveActive = true;
                     
                     const updateLoc = () => {
                         database.ref('active_session').set({
-                            teacherLat: position.coords.latitude,
-                            teacherLng: position.coords.longitude,
+                            teacherLat: position.coords.latitude, teacherLng: position.coords.longitude,
                             status: 'active', mode: 'live', timestamp: new Date().toISOString()
                         });
                     };
@@ -164,15 +172,10 @@
                         });
                     }, 30000);
 
-                    // Update UI
                     btn.textContent = "Stop Live Session";
-                    btn.classList.remove('btn-live');
-                    btn.classList.add('btn-stop');
-                    card.style.borderColor = "#fecaca";
-                    banner.className = "status-banner banner-live";
-                    banner.style.display = "flex";
-                    document.getElementById('bannerDot').style.display = "block";
-                    document.getElementById('bannerText').textContent = "LIVE BEACON ACTIVE: Students must be within 10 meters of this device.";
+                    btn.className = "btn btn-stop";
+                    card.style.borderColor = "#bbf7d0";
+                    updateBadge("Live Session Active: 10m Radius", "status-live", true);
                 });
             }
         }
@@ -182,25 +185,19 @@
     document.getElementById('remoteBtn').addEventListener('click', function() {
         const btn = document.getElementById('remoteBtn');
         const card = document.getElementById('remoteCard');
-        const banner = document.getElementById('statusBanner');
 
         if (isRemoteActive) {
             // STOP REMOTE
             isRemoteActive = false;
             database.ref('active_session').update({ status: 'inactive' });
 
-            // Reset UI
-            btn.textContent = "Set Remote Activity";
-            btn.classList.remove('btn-stop');
-            btn.classList.add('btn-remote');
+            btn.textContent = "Set Remote Session";
+            btn.className = "btn btn-remote";
             card.style.borderColor = "#e2e8f0";
-            banner.className = "status-banner banner-stopped";
-            banner.style.display = "flex";
-            document.getElementById('bannerDot').style.display = "none";
-            document.getElementById('bannerText').textContent = "SESSION STOPPED: Student check-ins are locked.";
+            updateBadge("Session Stopped: Check-ins Locked", "status-stopped", false);
         } else {
             // START REMOTE
-            if (isLiveActive) document.getElementById('liveBtn').click(); // Turn off live if active
+            if (isLiveActive) document.getElementById('liveBtn').click(); 
             isRemoteActive = true;
 
             database.ref('active_session').set({
@@ -208,15 +205,10 @@
                 status: 'active', mode: 'remote', timestamp: new Date().toISOString()
             });
 
-            // Update UI
             btn.textContent = "Stop Remote Session";
-            btn.classList.remove('btn-remote');
-            btn.classList.add('btn-stop');
-            card.style.borderColor = "#fecaca";
-            banner.className = "status-banner banner-remote";
-            banner.style.display = "flex";
-            document.getElementById('bannerDot').style.display = "none";
-            document.getElementById('bannerText').textContent = "REMOTE SESSION ACTIVE: Students must be inside Room 101.";
+            btn.className = "btn btn-stop";
+            card.style.borderColor = "#bfdbfe";
+            updateBadge("Remote Activity Active: Main Classroom", "status-remote", false);
         }
     });
 
