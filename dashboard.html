@@ -12,9 +12,14 @@
         .header-left h1 { font-size: 28px; font-weight: 600; color: #0f172a; }
         .header-left p { color: #64748b; font-size: 15px; margin-top: 4px; }
         
-        .beacon-banner { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 12px 20px; border-radius: 8px; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-weight: 500; }
+        .control-panel { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+        .beacon-box { flex: 1; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 15px 20px; border-radius: 8px; display: flex; align-items: center; gap: 10px; font-weight: 500; min-width: 300px; }
         .pulse-dot { width: 10px; height: 10px; background: #22c55e; border-radius: 50%; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        
+        .remote-box { flex: 1; background: #fff; border: 1px solid #e2e8f0; padding: 15px 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .remote-btn { background: #1e293b; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .remote-btn:hover { background: #0f172a; }
         
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
         .stat-card { background: #fff; padding: 20px 24px; border-radius: 12px; border: 1px solid #e2e8f0; }
@@ -46,10 +51,23 @@
         </div>
     </div>
 
-    <!-- Active Beacon Banner -->
-    <div class="beacon-banner">
-        <div class="pulse-dot"></div>
-        <span id="beaconText">Starting classroom GPS beacon...</span>
+    <div class="control-panel">
+        <!-- Automatic Beacon -->
+        <div class="beacon-box">
+            <div class="pulse-dot"></div>
+            <span id="beaconText">Starting classroom GPS beacon...</span>
+        </div>
+
+        <!-- Remote Activity Mode -->
+        <div class="remote-box">
+            <div>
+                <strong>Remote Activity Mode:</strong> 
+                <select id="roomSelect" style="padding: 6px; border-radius: 4px; border: 1px solid #cbd5e1; margin-left: 5px;">
+                    <option value="main_room">Main Classroom (7.704583, 125.996222)</option>
+                </select>
+            </div>
+            <button id="startRemoteSessionBtn" class="remote-btn">Start Remote Activity</button>
+        </div>
     </div>
 
     <div class="stats-grid">
@@ -76,9 +94,10 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="firebase-config.js"></script>
+<script src="geofence.js"></script>
 
 <script>
-    // ===== AUTOMATIC GPS BEACON =====
+    // ===== 1. AUTOMATIC GPS BEACON =====
     function broadcastClassroomLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -87,20 +106,39 @@
                         teacherLat: position.coords.latitude,
                         teacherLng: position.coords.longitude,
                         status: 'active',
+                        mode: 'live',
                         timestamp: new Date().toISOString()
                     });
-                    document.getElementById('beaconText').textContent = "Classroom Geofence ACTIVE. Students must be within 10 meters of this device.";
+                    document.getElementById('beaconText').textContent = "Live Beacon ACTIVE. Students must be within 10 meters of this device.";
+                    document.getElementById('beaconText').style.color = "#166534";
                 },
                 function(error) {
-                    document.getElementById('beaconText').textContent = "WARNING: GPS failed. Please allow location access on this device.";
+                    document.getElementById('beaconText').textContent = "WARNING: GPS failed. Please allow location access.";
                     document.getElementById('beaconText').style.color = "#dc2626";
                 },
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
-        } else {
-            document.getElementById('beaconText').textContent = "WARNING: This device does not support GPS.";
         }
     }
+
+    // ===== 2. REMOTE ACTIVITY MODE =====
+    document.getElementById('startRemoteSessionBtn').addEventListener('click', function() {
+        // The exact coordinates of the classroom provided
+        const roomLat = 7.704583;
+        const roomLng = 125.996222;
+
+        database.ref('active_session').set({
+            teacherLat: roomLat,
+            teacherLng: roomLng,
+            status: 'active',
+            mode: 'remote',
+            timestamp: new Date().toISOString()
+        });
+
+        document.getElementById('beaconText').textContent = "REMOTE SESSION ACTIVE: Students must be inside the Main Classroom.";
+        document.getElementById('beaconText').style.color = "#2563eb";
+        alert("Remote activity started. Students can now check in to the Main Classroom.");
+    });
 
     // Start beacon on load, then update every 30 seconds
     window.addEventListener('load', function() {
@@ -110,7 +148,7 @@
         setInterval(loadData, 10000);
     });
 
-    // ===== LOAD ATTENDANCE DATA =====
+    // ===== 3. LOAD ATTENDANCE DATA =====
     function loadData() {
         const tbody = document.getElementById('attendanceBody');
         const thead = document.getElementById('tableHead');
