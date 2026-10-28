@@ -61,7 +61,6 @@
         function getDeviceID() {
             let deviceID = localStorage.getItem('whereU_deviceID');
             if (!deviceID) {
-                // Hash hardware properties
                 const fingerprint = navigator.userAgent + screen.width + 'x' + screen.height + navigator.language + new Date().getTimezoneOffset();
                 let hash = 0;
                 for (let i = 0; i < fingerprint.length; i++) {
@@ -209,9 +208,12 @@
                             return;
                         }
 
-                        // 6. Classroom Geofence Check (Are they within 10m of the teacher?)
+                        // 6. Classroom Geofence Check (Are they within 30m of the teacher?)
                         const distanceToTeacher = haversineDistance(session.teacherLat, session.teacherLng, lat, lng);
-                        const insideClassroom = distanceToTeacher <= 10;
+                        const insideClassroom = distanceToTeacher <= 30; // CHANGED TO 30 METERS
+
+                        // DEBUGGING ALERT
+                        alert("Distance: " + distanceToTeacher.toFixed(2) + " meters.");
 
                         const status = insideClassroom ? 'Present' : 'Rejected - Outside Classroom';
 
