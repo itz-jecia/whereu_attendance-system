@@ -130,7 +130,7 @@
             Promise.all([
                 database.ref('students/' + studentID).once('value'),
                 database.ref('subjects').once('value'),
-                database.ref('active_session').once('value') // Get Teacher Location
+                database.ref('active_session').once('value') // Get Teacher Location (for session state)
             ]).then(([studentSnap, subjectsSnap, sessionSnap]) => {
                 
                 // 1. Verify Student ID
@@ -208,25 +208,21 @@
                             return;
                         }
 
-                        // 6. Classroom Geofence Check (Are they within 30m of the teacher?)
-                        const distanceToTeacher = haversineDistance(session.teacherLat, session.teacherLng, lat, lng);
-                        const insideClassroom = distanceToTeacher <= 50; // CHANGED TO 30 METERS
+                        // 6. Campus Geofence Check (Using the submitted paper's logic)
+                        const insideCampus = isInsideGeofence(lat, lng);
 
-                        // DEBUGGING ALERT
-                        alert("Distance: " + distanceToTeacher.toFixed(2) + " meters.");
-
-                        const status = insideClassroom ? 'Present' : 'Rejected - Outside Classroom';
+                        const status = insideCampus ? 'Present' : 'Rejected - Outside Campus';
 
                         database.ref('attendance/' + activeSubject.id + '/' + studentID).set({
                             studentID: studentID, name: studentName, subject: activeSubject.name,
                             latitude: lat, longitude: lng, status: status,
                             accuracy: position.coords.accuracy || null, date: today, timestamp: now.toISOString()
                         }).then(function() {
-                            if (insideClassroom) {
+                            if (insideCampus) {
                                 showStatus('✅ ' + studentName + ', you are marked Present for ' + activeSubject.name + '.', 'success');
                                 checkinBtn.textContent = '✓ Verified';
                             } else {
-                                showStatus('❌ You are too far from the teacher. Check in inside the classroom.', 'error');
+                                showStatus('❌ You are outside the campus. Attendance rejected.', 'error');
                                 checkinBtn.textContent = 'Try Again';
                             }
                         }).catch(function(error) {
