@@ -190,7 +190,7 @@
 
                     btn.textContent = "Stop Live Session";
                     btn.className = "btn btn-stop";
-                    updateBadge("Live Session Active: 10m Radius", "status-live", true);
+                    updateBadge("Live Session Active", "status-live", true);
                 });
             }
         }
@@ -215,7 +215,7 @@
             // Determine coordinates based on selection
             let roomLat, roomLng, roomName;
             if (selectedRoom === 'dstf_room') {
-                roomLat = 7.669278; roomLng = 126.091322; roomName = "DSTF Room";
+                roomLat = 7.669278; roomLng = 126.091322; roomName = "DSTF";
             } else {
                 roomLat = 7.704583; roomLng = 125.996222; roomName = "Main Classroom";
             }
