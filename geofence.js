@@ -1,6 +1,5 @@
 // ============================================================
-//  HAVERSINE DISTANCE FORMULA
-//  Used for 10-meter Classroom Geofence and Anti-Spoofing
+//  CAMPUS POLYGON
 // ============================================================
 
 const campusPolygon = [
@@ -9,6 +8,32 @@ const campusPolygon = [
     { lat: 7.670273, lng: 126.090265 },  // North
     { lat: 7.669613, lng: 126.089661 }   // West
 ];
+
+// ============================================================
+//  POINT-IN-POLYGON (RAY CASTING ALGORITHM)
+//  Used to check if the student is inside the campus boundary
+// ============================================================
+
+function isInsideGeofence(lat, lng) {
+    let inside = false;
+    for (let i = 0, j = campusPolygon.length - 1; i < campusPolygon.length; j = i++) {
+        const xi = campusPolygon[i].lng;
+        const yi = campusPolygon[i].lat;
+        const xj = campusPolygon[j].lng;
+        const yj = campusPolygon[j].lat;
+
+        if (((yi > lat) !== (yj > lat)) &&
+            (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi)) {
+            inside = !inside;
+        }
+    }
+    return inside;
+}
+
+// ============================================================
+//  HAVERSINE DISTANCE FORMULA
+//  Used for Anti-Spoofing
+// ============================================================
 
 function haversineDistance(lat1, lng1, lat2, lng2) {
     const R = 6371000;
@@ -64,13 +89,11 @@ function checkGPSSpoofing(lat, lng, accuracy, previousRecord) {
 function getDeviceID() {
     let deviceID = localStorage.getItem('whereU_deviceID');
     if (!deviceID) {
-        // Create a fingerprint based on hardware and browser settings
         const fingerprint = navigator.userAgent + 
                             screen.width + 'x' + screen.height + 
                             navigator.language + 
                             new Date().getTimezoneOffset();
         
-        // Hash the fingerprint into a short ID
         let hash = 0;
         for (let i = 0; i < fingerprint.length; i++) {
             hash = ((hash << 5) - hash) + fingerprint.charCodeAt(i);
