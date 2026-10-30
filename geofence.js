@@ -3,6 +3,13 @@
 //  Used for 10-meter Classroom Geofence and Anti-Spoofing
 // ============================================================
 
+const campusPolygon = [
+    { lat: 7.668195, lng: 126.091926 },  // South
+    { lat: 7.669054, lng: 126.092558 },  // East
+    { lat: 7.670273, lng: 126.090265 },  // North
+    { lat: 7.669613, lng: 126.089661 }   // West
+];
+
 function haversineDistance(lat1, lng1, lat2, lng2) {
     const R = 6371000;
     const toRad = (deg) => deg * Math.PI / 180;
