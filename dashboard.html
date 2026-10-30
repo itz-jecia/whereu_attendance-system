@@ -110,7 +110,8 @@
                 <p>Set a fixed location for students completing an activity without you. Best used when you assign seatwork from the faculty room.</p>
                 <div>
                     <select id="roomSelect">
-                        <option value="main_room">Main Classroom</option>
+                        <option value="dstf_room">DSTF Room (7.669278, 126.091322)</option>
+                        <option value="main_room">Main Classroom (7.704583, 125.996222)</option>
                     </select>
                     <button id="remoteBtn" class="btn btn-remote">Set Remote Session</button>
                 </div>
@@ -198,6 +199,7 @@
     // ===== 2. REMOTE ACTIVITY TOGGLE =====
     document.getElementById('remoteBtn').addEventListener('click', function() {
         const btn = document.getElementById('remoteBtn');
+        const selectedRoom = document.getElementById('roomSelect').value;
 
         if (isRemoteActive) {
             isRemoteActive = false;
@@ -210,14 +212,22 @@
             if (isLiveActive) document.getElementById('liveBtn').click(); 
             isRemoteActive = true;
 
+            // Determine coordinates based on selection
+            let roomLat, roomLng, roomName;
+            if (selectedRoom === 'dstf_room') {
+                roomLat = 7.669278; roomLng = 126.091322; roomName = "DSTF Room";
+            } else {
+                roomLat = 7.704583; roomLng = 125.996222; roomName = "Main Classroom";
+            }
+
             database.ref('active_session').set({
-                teacherLat: 7.704583, teacherLng: 125.996222,
+                teacherLat: roomLat, teacherLng: roomLng,
                 status: 'active', mode: 'remote', timestamp: new Date().toISOString()
             });
 
             btn.textContent = "Stop Remote Session";
             btn.className = "btn btn-stop";
-            updateBadge("Remote Activity Active: Main Classroom", "status-remote", false);
+            updateBadge("Remote Activity Active: " + roomName, "status-remote", false);
         }
     });
 
