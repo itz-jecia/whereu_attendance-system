@@ -210,7 +210,7 @@
 
                         // 6. Classroom Geofence Check (Are they within 30m of the teacher?)
                         const distanceToTeacher = haversineDistance(session.teacherLat, session.teacherLng, lat, lng);
-                        const insideClassroom = distanceToTeacher <= 30; // CHANGED TO 30 METERS
+                        const insideClassroom = distanceToTeacher <= 50; // CHANGED TO 30 METERS
 
                         // DEBUGGING ALERT
                         alert("Distance: " + distanceToTeacher.toFixed(2) + " meters.");
